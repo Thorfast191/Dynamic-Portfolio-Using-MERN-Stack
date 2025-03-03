@@ -22,6 +22,10 @@ const Login = ({ className, ...props }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Email and password are required.");
+      return; // Exit if inputs are empty
+    }
     dispatch(login(email, password));
   };
 
@@ -31,6 +35,7 @@ const Login = ({ className, ...props }) => {
       dispatch(clearAllUserErrors());
     }
     if (isAuthenticated) {
+      toast.success("Login successful!"); // Show success toast
       navigateTo("/");
     }
   }, [dispatch, isAuthenticated, error, loading]);

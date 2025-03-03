@@ -15,6 +15,7 @@ import UpdateProject from "./Pages/UpdateProject.jsx";
 const App = () => {
   return (
     <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
