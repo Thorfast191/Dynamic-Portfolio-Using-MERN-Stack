@@ -11,11 +11,18 @@ import ManageTimeline from "./Pages/ManageTimeline.jsx";
 import ManageProjects from "./Pages/ManageProjects.jsx";
 import ViewProject from "./Pages/ViewProject.jsx";
 import UpdateProject from "./Pages/UpdateProject.jsx";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { getUser } from "./store/slices/userSlice.js";
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUser());
+  }, []);
   return (
     <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
@@ -27,7 +34,7 @@ const App = () => {
         <Route path="/view/project/:id" element={<ViewProject />} />
         <Route path="/update/project/:id" element={<UpdateProject />} />
       </Routes>
-      <ToastContainer position="top-right" theme="dark" />
+      <ToastContainer position="bottom-right" theme="dark" />
     </Router>
   );
 };

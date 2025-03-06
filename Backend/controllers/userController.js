@@ -331,12 +331,19 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
 });
 
 // Get User Profile
-export const getUserProfile = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select("-password");
+// export const getUserProfile = asyncHandler(async (req, res, next) => {
+//   const user = await User.findById(req.user._id).select("-password");
 
+//   res.status(200).json({
+//     success: true,
+//     data: user,
+//   });
+// });
+export const getUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
   res.status(200).json({
     success: true,
-    data: user,
+    user,
   });
 });
 
@@ -416,22 +423,22 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
 //Update password
 export const updatePassword = asyncHandler(async (req, res, next) => {
-  const { currntPassword, newPassword, confirmPassword } = req.body;
+  const { currentPassword, newPassword, confirmPassword } = req.body;
 
-  if (!currntPassword || !newPassword || !confirmPassword) {
+  if (!currentPassword || !newPassword || !confirmPassword) {
     return next(new ErrorHandler("Please fill all fields", 400));
   }
 
   const user = await User.findById(req.user._id).select("+password");
 
-  const isMatched = await user.comparePassword(currntPassword);
+  const isMatched = await user.comparePassword(currentPassword);
   if (!isMatched) {
     return next(new ErrorHandler("Incorrect Current Password!", 401));
   }
   if (newPassword !== confirmPassword) {
     return next(new ErrorHandler("Passwords do not match!", 400));
   }
-  if (newPassword === currntPassword) {
+  if (newPassword === currentPassword) {
     return next(
       new ErrorHandler("New Password cannot be same as Current Password!", 400)
     );
