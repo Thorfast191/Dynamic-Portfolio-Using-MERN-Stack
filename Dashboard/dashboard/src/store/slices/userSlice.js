@@ -1,16 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const initialState = {
+  loading: false,
+  user: {},
+  authHandler: false,
+  error: null,
+  message: null,
+  isUpdated: false,
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    loading: false,
-    user: {},
-    authHandler: false,
-    error: null,
-    message: null,
-    isUpdated: false,
-  },
+  initialState,
   reducers: {
     loginRequest(state, action) {
       state.loading = true;
@@ -43,11 +45,8 @@ const userSlice = createSlice({
       state.user = state.user;
       state.error = action.payload;
     },
-    loadUserRequest(state, action) {
+    loadUserRequest(state) {
       state.loading = true;
-      state.authHandler = false;
-      state.user = {};
-      state.error = null;
     },
     loadUserSuccess(state, action) {
       state.loading = false;
@@ -55,11 +54,10 @@ const userSlice = createSlice({
       state.user = action.payload;
       state.error = null;
     },
-    loadUserFailed(state, action) {
+    loadUserFailed(state) {
       state.loading = false;
       state.authHandler = false;
       state.user = {};
-      state.error = action.payload;
     },
     updatePasswordRequest(state, action) {
       state.loading = true;
@@ -131,9 +129,10 @@ export const getUser = () => async (dispatch) => {
       withCredentials: true,
     });
     dispatch(userSlice.actions.loadUserSuccess(data.user));
-    dispatch(userSlice.actions.clearAllErrors());
+    return true;
   } catch (error) {
-    dispatch(userSlice.actions.loadUserFailed(error.response.data.message));
+    dispatch(userSlice.actions.loadUserFailed());
+    return false;
   }
 };
 

@@ -11,9 +11,8 @@ const messageSlice = createSlice({
   },
   reducers: {
     getAllMessagesRequest(state, action) {
-      state.messages = [];
-      state.error = null;
       state.loading = true;
+      state.error = null;
     },
     getAllMessagesSuccess(state, action) {
       state.messages = action.payload;
@@ -21,7 +20,7 @@ const messageSlice = createSlice({
       state.loading = false;
     },
     getAllMessagesFailed(state, action) {
-      state.messages = state.messages;
+      state.messages = [];
       state.error = action.payload;
       state.loading = false;
     },
@@ -42,38 +41,37 @@ const messageSlice = createSlice({
     },
     resetMessageSlice(state, action) {
       state.error = null;
-      state.messages = state.messages;
       state.message = null;
       state.loading = false;
     },
     clearAllErrors(state, action) {
       state.error = null;
-      state.messages = state.messages;
     },
   },
 });
 
 export const getAllMessages = () => async (dispatch) => {
-  dispatch(messageSlice.actions.getAllMessagesRequest());
   try {
+    dispatch(messageSlice.actions.getAllMessagesRequest());
     const response = await axios.get(
       "http://localhost:4000/api/message/getMessages",
       { withCredentials: true }
     );
-    dispatch(
-      messageSlice.actions.getAllMessagesSuccess(response.data.messages)
-    );
-    dispatch(messageSlice.actions.clearAllErrors());
+    console.log("Messages response:", response.data); // Debug log
+    dispatch(messageSlice.actions.getAllMessagesSuccess(response.data.data));
   } catch (error) {
+    console.error("Error fetching messages:", error); // Debug log
     dispatch(
-      messageSlice.actions.getAllMessagesFailed(error.response.data.message)
+      messageSlice.actions.getAllMessagesFailed(
+        error.response?.data?.message || "Failed to fetch messages"
+      )
     );
   }
 };
 
 export const deleteMessage = (id) => async (dispatch) => {
-  dispatch(messageSlice.actions.deleteMessageRequest());
   try {
+    dispatch(messageSlice.actions.deleteMessageRequest());
     const response = await axios.delete(
       `http://localhost:4000/api/message/deleteMessage/${id}`,
       {
@@ -81,10 +79,11 @@ export const deleteMessage = (id) => async (dispatch) => {
       }
     );
     dispatch(messageSlice.actions.deleteMessageSuccess(response.data.message));
-    dispatch(messageSlice.actions.clearAllErrors());
   } catch (error) {
     dispatch(
-      messageSlice.actions.deleteMessageFailed(error.response.data.message)
+      messageSlice.actions.deleteMessageFailed(
+        error.response?.data?.message || "Failed to delete message"
+      )
     );
   }
 };
