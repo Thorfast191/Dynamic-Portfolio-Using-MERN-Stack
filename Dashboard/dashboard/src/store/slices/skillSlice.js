@@ -98,23 +98,38 @@ export const getAllSkills = () => async (dispatch) => {
   }
 };
 
-export const addNewSkill = (data) => async (dispatch) => {
-  dispatch(skillSlice.actions.addNewSkillRequest());
+export const addNewSkill = (formData) => async (dispatch) => {
   try {
-    const response = await axios.post(
+    dispatch(skillSlice.actions.addNewSkillRequest());
+    console.log("Making API request with formData:", formData);
+
+    const { data } = await axios.post(
       "http://localhost:4000/api/skills/add",
-      data,
+      formData,
       {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    console.log(response);
-    console.log(response.data.message);
-    dispatch(skillSlice.actions.addNewSkillSuccess(response.data.message));
-    dispatch(skillSlice.actions.clearAllErrors());
+
+    console.log("API response:", data);
+
+    if (data.success) {
+      dispatch(
+        skillSlice.actions.addNewSkillSuccess(
+          data.message || "Skill added successfully"
+        )
+      );
+    } else {
+      throw new Error(data.message || "Failed to add skill");
+    }
   } catch (error) {
-    dispatch(skillSlice.actions.addNewSkillFailed(error.response.data.message));
+    console.error("Error in addNewSkill:", error);
+    dispatch(
+      skillSlice.actions.addNewSkillFailed(
+        error.response?.data?.message || error.message || "Failed to add skill"
+      )
+    );
   }
 };
 

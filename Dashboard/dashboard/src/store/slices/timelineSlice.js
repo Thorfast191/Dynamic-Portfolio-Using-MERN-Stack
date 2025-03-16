@@ -63,7 +63,7 @@ const timelineSlice = createSlice({
     },
     clearAllErrors(state, action) {
       state.error = null;
-      state = state.timeline;
+      // state = state.timeline;
     },
   },
 });
@@ -75,9 +75,7 @@ export const getAllTimeline = () => async (dispatch) => {
       "http://localhost:4000/api/timeline/get/posts",
       { withCredentials: true }
     );
-    dispatch(
-      timelineSlice.actions.getAllTimelineSuccess(response.data.timelines)
-    );
+    dispatch(timelineSlice.actions.getAllTimelineSuccess(response.data.posts));
     dispatch(timelineSlice.actions.clearAllErrors());
   } catch (error) {
     dispatch(

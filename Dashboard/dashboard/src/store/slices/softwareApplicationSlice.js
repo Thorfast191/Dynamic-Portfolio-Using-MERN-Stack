@@ -25,17 +25,17 @@ const softwareApplicationSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    addNewsoftwareApplicationsRequest(state, action) {
+    addNewsoftwareApplicationRequest(state, action) {
       state.loading = true;
       state.error = null;
       state.message = null;
     },
-    addNewsoftwareApplicationsSuccess(state, action) {
+    addNewsoftwareApplicationSuccess(state, action) {
       state.error = null;
       state.loading = false;
       state.message = action.payload;
     },
-    addNewsoftwareApplicationsFailed(state, action) {
+    addNewsoftwareApplicationFailed(state, action) {
       state.error = action.payload;
       state.loading = false;
       state.message = null;
@@ -92,29 +92,40 @@ export const getAllSoftwareApplications = () => async (dispatch) => {
   }
 };
 
-export const addNewSoftwareApplication = (data) => async (dispatch) => {
-  dispatch(
-    softwareApplicationSlice.actions.addNewsoftwareApplicationsRequest()
-  );
+export const addNewSoftwareApplication = (formData) => async (dispatch) => {
   try {
-    const response = await axios.post(
+    dispatch(
+      softwareApplicationSlice.actions.addNewsoftwareApplicationRequest()
+    );
+    console.log("Making API request with formData:", formData);
+
+    const { data } = await axios.post(
       "http://localhost:4000/api/software/applications/add",
-      data,
+      formData,
       {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    dispatch(
-      softwareApplicationSlice.actions.addNewsoftwareApplicationsSuccess(
-        response.data.message
-      )
-    );
-    dispatch(softwareApplicationSlice.actions.clearAllErrors());
+
+    console.log("API response:", data);
+
+    if (data.success) {
+      dispatch(
+        softwareApplicationSlice.actions.addNewsoftwareApplicationSuccess(
+          data.message || "Software Application added successfully"
+        )
+      );
+    } else {
+      throw new Error(data.message || "Failed to add software application");
+    }
   } catch (error) {
+    console.error("Error in addNewSoftwareApplication:", error);
     dispatch(
-      softwareApplicationSlice.actions.addNewsoftwareApplicationsFailed(
-        error.response.data.message
+      softwareApplicationSlice.actions.addNewsoftwareApplicationFailed(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to add software application"
       )
     );
   }

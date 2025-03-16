@@ -68,5 +68,15 @@ export const deletePost = asyncHandler(async (req, res, next) => {
 
 export const getPost = asyncHandler(async (req, res, next) => {
   const posts = await Timeline.find();
-  res.status(200).json({ success: true, posts });
+
+  // Flatten the timeline field
+  const formattedPosts = posts.map((post) => ({
+    _id: post._id,
+    title: post.title,
+    description: post.description,
+    from: post.timeline.from, // Extract 'from' directly
+    to: post.timeline.to, // Extract 'to' directly
+  }));
+
+  res.status(200).json({ success: true, posts: formattedPosts });
 });

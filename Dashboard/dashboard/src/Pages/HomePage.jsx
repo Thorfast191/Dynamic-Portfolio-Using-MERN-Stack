@@ -356,7 +356,6 @@ const HomePage = () => {
             case "Account":
               return <Account />;
               break;
-              z;
             default:
               return <Dashboard />;
               break;
