@@ -61,8 +61,8 @@ const AddProject = () => {
     }
     if (message) {
       toast.success(message);
-      dispatch(resetProjectSlice());
-      dispatch(getAllProjects());
+      // dispatch(resetProjectSlice());
+      // dispatch(getAllProjects());
     }
   }, [dispatch, error, loading, message]);
 

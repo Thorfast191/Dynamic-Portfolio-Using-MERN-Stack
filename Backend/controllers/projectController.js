@@ -64,6 +64,7 @@ export const addNewProject = asyncHandler(async (req, res, next) => {
   });
   res.status(201).json({
     success: true,
+    message: "Project added successfully",
     project,
   });
 });
@@ -127,6 +128,7 @@ export const updateProject = asyncHandler(async (req, res, next) => {
   await project.save();
   res.status(200).json({
     success: true,
+    message: "Project updated successfully",
     project,
   });
 });
