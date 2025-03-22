@@ -1,14 +1,10 @@
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}", // Include all your component files
+  ],
   theme: {
-    extend: {
-      animation: {
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-      },
-      transitionProperty: {
-        scale: "transform",
-      },
-    },
+    extend: {},
   },
+  plugins: [],
 };
