@@ -32,6 +32,12 @@ import { toast } from "react-toastify";
 import SpecialLoadingButton from "./SpecialLoadingButton";
 import { clearAllTimelineErrors } from "@/store/slices/timelineSlice";
 import { clearAllProjectErrors } from "@/store/slices/projectSlice";
+import {
+  clearAllPublicationErrors,
+  deletePublication,
+  getAllPublications,
+  resetPublicationSlice,
+} from "@/store/slices/publicationSlice";
 const Dashboard = () => {
   const navigateTo = useNavigate();
   const gotoMangeSkills = () => {
@@ -63,6 +69,12 @@ const Dashboard = () => {
     error: timelineError,
     message: timelineMessage,
   } = useSelector((state) => state.timeline);
+  const {
+    publications,
+    loading: publicationsLoading,
+    error: publicationsError,
+    message: publicationsMessage,
+  } = useSelector((state) => state.publication);
   const { projects, error: projectError } = useSelector(
     (state) => state.project
   );
@@ -72,8 +84,17 @@ const Dashboard = () => {
     setAppId(id);
     dispatch(deleteSoftwareApplication(id));
   };
-
+  const [PublicationId, setPublicationId] = useState(null);
+  const handleDeletePublications = (id) => {
+    setPublicationId(id);
+    dispatch(deletePublication(id));
+  };
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllPublications());
+    dispatch(getAllSoftwareApplications());
+    // Add other data fetches here if needed
+  }, [dispatch]);
   useEffect(() => {
     // dispatch(getAllTimeline());
     if (skillError) {
@@ -83,6 +104,15 @@ const Dashboard = () => {
     if (appError) {
       toast.error(appError);
       dispatch(clearAllSoftwareAppErrors());
+    }
+    if (publicationsError) {
+      toast.error(publicationsError);
+      dispatch(clearAllPublicationErrors());
+    }
+    if (publicationsMessage) {
+      toast.success(publicationsMessage);
+      setPublicationId(null);
+      dispatch(resetPublicationSlice());
     }
     if (projectError) {
       toast.error(projectError);
@@ -106,6 +136,9 @@ const Dashboard = () => {
     appLoading,
     appError,
     appMessage,
+    publicationsLoading,
+    publicationsError,
+    publicationsMessage,
     timelineError,
     timelineLoading,
     timelineMessage,
@@ -296,6 +329,84 @@ const Dashboard = () => {
                           <TableRow>
                             <TableCell className="text-3xl overflow-y-hidden">
                               You have not added any skill.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="px-7">
+                    <CardTitle>Publications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Title</TableHead>
+                          <TableHead className="md:table-cell">
+                            Description
+                          </TableHead>
+                          <TableHead className="md:table-cell">
+                            Document
+                          </TableHead>
+                          <TableHead className="md:table-cell text-center">
+                            Action
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {publications && publications.length > 0 ? (
+                          publications.map((pub) => (
+                            <TableRow className="bg-accent" key={pub._id}>
+                              <TableCell className="font-medium">
+                                {pub.title}
+                              </TableCell>
+                              <TableCell className="md:table-cell">
+                                {pub.description?.slice(0, 50)}...
+                              </TableCell>
+                              <TableCell className="md:table-cell">
+                                {pub._id ? (
+                                  <Link
+                                    to={`/publications/${pub._id}`}
+                                    className="text-blue-500 hover:underline"
+                                  >
+                                    View Document
+                                  </Link>
+                                ) : (
+                                  <span className="text-gray-400">
+                                    Loading ID...
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="md:table-cell text-center">
+                                {publicationsLoading &&
+                                PublicationId === pub._id ? (
+                                  <SpecialLoadingButton
+                                    content={"Deleting"}
+                                    width={"w-fit"}
+                                  />
+                                ) : (
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() =>
+                                      handleDeletePublications(pub._id)
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell
+                              className="text-3xl overflow-y-hidden"
+                              colSpan={4}
+                            >
+                              No publications found
                             </TableCell>
                           </TableRow>
                         )}

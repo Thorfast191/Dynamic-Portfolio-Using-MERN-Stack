@@ -43,6 +43,7 @@ export const addNewPublication = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
+    message: "Publication created successfully",
     publication,
   });
 });
@@ -120,7 +121,7 @@ export const deletePublication = asyncHandler(async (req, res, next) => {
     await cloudinary.uploader.destroy(publication.publication.public_id);
   }
 
-  await publication.remove();
+  await Publication.findByIdAndDelete(publication);
 
   res.status(200).json({
     success: true,

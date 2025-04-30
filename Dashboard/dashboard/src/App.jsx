@@ -20,6 +20,7 @@ import ManageProjects from "./Pages/ManageProjects.jsx";
 import ViewProject from "./Pages/ViewProject.jsx";
 import UpdateProject from "./Pages/UpdateProject.jsx";
 import AddProject from "./Pages/sub-components/AddProject";
+import ViewPublication from "./Pages/ViewPublication";
 // import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
           <Route path="/add-project" element={<AddProject />} />
           <Route path="/project/:id" element={<ViewProject />} />
           <Route path="/update/project/:id" element={<UpdateProject />} />
+          <Route path="/publications/:id" element={<ViewPublication />} />
         </Routes>
         <ToastContainer
           position="top-right"

@@ -6,6 +6,7 @@ import projectReducer from "./slices/projectSlice.js";
 import skillReducer from "./slices/skillSlice.js";
 import softwareApplicationReducer from "./slices/softwareApplicationSlice.js";
 import timelineReducer from "./slices/timelineSlice.js";
+import publicationReducer from "./slices/publicationSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     skill: skillReducer,
     softwareApplications: softwareApplicationReducer,
     timeline: timelineReducer,
+    publication: publicationReducer,
   },
 });

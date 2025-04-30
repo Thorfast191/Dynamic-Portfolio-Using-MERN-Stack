@@ -50,9 +50,6 @@ const AddSkill = () => {
     formData.append("proficiency", proficiency);
     formData.append("svg", svg);
 
-    // Test toast
-    toast.info("Adding skill...");
-
     dispatch(addNewSkill(formData));
   };
 
@@ -176,10 +173,9 @@ const AddSkill = () => {
             </div>
           </div>
         </div>
-
         <div className="mt-6 flex items-center justify-end gap-x-6">
           {!loading ? (
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" variant="default">
               Add Skill
             </Button>
           ) : (
