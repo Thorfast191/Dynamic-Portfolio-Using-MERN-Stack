@@ -12,6 +12,7 @@ import timelineRouter from "./routers/timelineRouter.js";
 import softwareApplicationsRouter from "./routers/softwareApplicationsRouter.js";
 import skillRouter from "./routers/skillRouter.js";
 import projectRouter from "./routers/projectRouter.js";
+import publicationRouter from "./routers/publicationRouter.js";
 
 const app = express();
 dotenv.config({ path: "./config/config.env" });
@@ -39,19 +40,13 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(
-//   fileUpload({
-//     useTempFiles: true,
-//     tempFileDir: "/tmp/",
-//     limits: { fileSize: 50 * 1024 * 1024 },
-//   })
-// );
 app.use(
   upload.fields([
     { name: "avatar" },
     { name: "resume" },
     { name: "svg" },
     { name: "projectBanner" },
+    { name: "publication" },
   ])
 ); // Multer middleware
 
@@ -61,6 +56,7 @@ app.use("/api/timeline", timelineRouter);
 app.use("/api/software/applications", softwareApplicationsRouter);
 app.use("/api/skills", skillRouter);
 app.use("/api/projects", projectRouter);
+app.use("/api/publications", publicationRouter);
 
 dbConnection();
 
