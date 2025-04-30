@@ -1,124 +1,107 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
+import { getSingleProject } from "@/store/slices/projectSlice";
 
 const ViewProject = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [technologies, setTechnologies] = useState("");
-  const [stack, setStack] = useState("");
-  const [gitRepoLink, setGitRepoLink] = useState("");
-  const [deployed, setDeployed] = useState("");
-  const [projectLink, setProjectLink] = useState("");
-  const [projectBanner, setProjectBanner] = useState("");
-
   const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { singleProject, loading, error } = useSelector(
+    (state) => state.project
+  );
 
   useEffect(() => {
-    const getProject = async () => {
-      await axios
-        .get(`http://localhost:4000/api/projects/get/${id}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setTitle(res.data.project.title);
-          setDescription(res.data.project.description);
-          setStack(res.data.project.stack);
-          setDeployed(res.data.project.deployed);
-          setTechnologies(res.data.project.technologies);
-          setGitRepoLink(res.data.project.gitRepoLink);
-          setProjectLink(res.data.project.projectLink);
-          setProjectBanner(
-            res.data.project.projectBanner && res.data.project.projectBanner.url
-          );
-        })
-        .catch((error) => {
-          toast.error(error.response.data.message);
-        });
-    };
-    getProject();
-  }, [id]);
+    dispatch(getSingleProject(id));
+  }, [id, dispatch]);
 
-  const navigateTo = useNavigate();
-  const handleReturnToDashboard = () => {
-    navigateTo("/");
-  };
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      navigate("/projects");
+    }
+  }, [error, navigate]);
 
-  const descriptionList = description.split(". ");
-  const technologiesList = technologies.split(", ");
+  if (loading) return <div className="text-center p-8">Loading Project...</div>;
 
   return (
-    <>
-      <div className="flex mt-7 justify-center items-center min-h-[100vh] sm:gap-4 sm:py-4">
-        <div className="w-[100%] px-5 md:w-[1000px] pb-5">
-          <div className="space-y-12">
-            <div className="border-b border-gray-900/10 pb-12">
-              <div className="flex justify-end">
-                <Button onClick={handleReturnToDashboard}>
-                  Return to Dashboard
-                </Button>
+    <div className="container mx-auto p-6">
+      <Button onClick={() => navigate(-1)} className="mb-6">
+        Back to Projects
+      </Button>
+
+      {singleProject && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-3xl font-bold mb-6">{singleProject.title}</h1>
+          <img
+            src={singleProject.projectBanner?.url}
+            alt="Project Banner"
+            className="w-full h-64 object-cover rounded-lg mb-6"
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Project Details</h2>
+                <p>
+                  <strong>Type:</strong> {singleProject.type}
+                </p>
+                <p>
+                  <strong>Status:</strong> {singleProject.status}
+                </p>
+                <p>
+                  <strong>Start Date:</strong>{" "}
+                  {new Date(singleProject.startDate).toLocaleDateString()}
+                </p>
+                {singleProject.endDate && (
+                  <p>
+                    <strong>End Date:</strong>{" "}
+                    {new Date(singleProject.endDate).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-              <div className="mt-10 flex flex-col gap-5">
-                <div className="w-full sm:col-span-4">
-                  <h1 className="text-2xl font-bold mb-4">{title}</h1>
-                  <img
-                    src={projectBanner ? projectBanner : "/avatarHolder.jpg"}
-                    alt="projectBanner"
-                    className="w-full h-auto"
-                  />
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Description:</p>
-                  <ul className="list-disc">
-                    {descriptionList.map((item, index) => (
-                      <li key={index}>{item}</li>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Description</h2>
+                <p className="whitespace-pre-wrap">
+                  {singleProject.description}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {singleProject.collaborators?.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Collaborators</h2>
+                  <ul className="list-disc pl-6">
+                    {singleProject.collaborators.map((collab, index) => (
+                      <li key={index}>{collab}</li>
                     ))}
                   </ul>
                 </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Technologies:</p>
-                  <ul className="list-disc">
-                    {technologiesList.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
+              )}
+
+              {singleProject.impact && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Impact</h2>
+                  <p>{singleProject.impact}</p>
                 </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Stack:</p>
-                  <p>{stack}</p>
+              )}
+
+              {singleProject.location && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Location</h2>
+                  <p>{singleProject.location}</p>
                 </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Deployed:</p>
-                  <p>{deployed}</p>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Github Repository Link:</p>
-                  <Link
-                    className="text-sky-700"
-                    target="_blank"
-                    to={gitRepoLink}
-                  >
-                    {gitRepoLink}
-                  </Link>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <p className="text-2xl mb-2">Project Link:</p>
-                  <Link
-                    className="text-sky-700"
-                    target="_blank"
-                    to={projectLink}
-                  >
-                    {projectLink}
-                  </Link>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

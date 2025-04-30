@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import {
   Select,
   SelectContent,
@@ -6,285 +9,224 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import axios from "axios";
-import SpecialLoadingButton from "./sub-components/SpecialLoadingButton";
-import {
-  clearAllProjectErrors,
-  getAllProjects,
-  resetProjectSlice,
-  updateProject,
-} from "@/store/slices/projectSlice";
 import { Button } from "@/components/ui/button";
+import { getSingleProject, updateProject } from "@/store/slices/projectSlice";
 
 const UpdateProject = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [technologies, setTechnologies] = useState("");
-  const [stack, setStack] = useState("");
-  const [gitRepoLink, setGitRepoLink] = useState("");
-  const [deployed, setDeployed] = useState("");
-  const [projectLink, setProjectLink] = useState("");
-  const [projectBanner, setProjectBanner] = useState("");
-  const [projectBannerPreview, setProjectBannerPreview] = useState("");
-
-  const { error, message, loading } = useSelector((state) => state.project);
-  const dispatch = useDispatch();
   const { id } = useParams();
-
-  const handleProjectBanner = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setProjectBannerPreview(reader.result);
-      setProjectBanner(file);
-    };
-  };
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { singleProject, loading, error } = useSelector(
+    (state) => state.project
+  );
+  const [formData, setFormData] = useState({
+    title: "",
+    type: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    status: "",
+    collaborators: [],
+    tags: [],
+    location: "",
+    audience: "",
+    impact: "",
+  });
+  const [newCollaborator, setNewCollaborator] = useState("");
+  const [newTag, setNewTag] = useState("");
 
   useEffect(() => {
-    const getProject = async () => {
-      await axios
-        .get(`http://localhost:4000/api/projects/get/${id}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setTitle(res.data.project.title);
-          setDescription(res.data.project.description);
-          setStack(res.data.project.stack);
-          setDeployed(res.data.project.deployed);
-          setTechnologies(res.data.project.technologies);
-          setGitRepoLink(res.data.project.gitRepoLink);
-          setProjectLink(res.data.project.projectLink);
-          setProjectBanner(
-            res.data.project.projectBanner && res.data.project.projectBanner.url
-          );
-          setProjectBannerPreview(
-            res.data.project.projectBanner && res.data.project.projectBanner.url
-          );
-        })
-        .catch((error) => {
-          toast.error(error.response.data.message);
-        });
-    };
-    getProject();
+    dispatch(getSingleProject(id));
+  }, [id, dispatch]);
 
-    if (error) {
-      toast.error(error);
-
-      dispatch(clearAllProjectErrors());
+  useEffect(() => {
+    if (singleProject) {
+      setFormData({
+        title: singleProject.title || "",
+        type: singleProject.type || "",
+        description: singleProject.description || "",
+        startDate: singleProject.startDate?.split("T")[0] || "",
+        endDate: singleProject.endDate?.split("T")[0] || "",
+        status: singleProject.status || "",
+        collaborators: singleProject.collaborators || [],
+        tags: singleProject.tags || [],
+        location: singleProject.location || "",
+        audience: singleProject.audience || "",
+        impact: singleProject.impact || "",
+      });
     }
-    if (message) {
-      toast.success(message);
-    }
-  }, [id, message, error, dispatch]);
+  }, [singleProject]);
 
-  const handleUpdateProject = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("deployed", deployed);
-    formData.append("stack", stack);
-    formData.append("technologies", technologies);
-    formData.append("gitRepoLink", gitRepoLink);
-    formData.append("projectLink", projectLink);
-    formData.append("projectBanner", projectBanner);
-    dispatch(updateProject(id, formData));
+    const updatedData = new FormData();
+
+    Object.keys(formData).forEach((key) => {
+      if (key === "collaborators" || key === "tags") {
+        updatedData.append(key, JSON.stringify(formData[key]));
+      } else {
+        updatedData.append(key, formData[key]);
+      }
+    });
+
+    // Dispatch with proper arguments
+    dispatch(updateProject(id, updatedData))
+      .then(() => {
+        toast.success("Project updated successfully");
+        navigate("/");
+      })
+      .catch((error) => {
+        toast.error(error.message || "Failed to update project");
+      });
   };
 
-  const navigateTo = useNavigate();
-  const handleReturnToDashboard = () => {
-    navigateTo("/");
+  const handleAddCollaborator = () => {
+    if (newCollaborator.trim()) {
+      setFormData({
+        ...formData,
+        collaborators: [...formData.collaborators, newCollaborator.trim()],
+      });
+      setNewCollaborator("");
+    }
   };
+
+  if (loading) return <div className="text-center p-8">Loading Project...</div>;
+  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
   return (
-    <>
-      <div className="flex mt-7 justify-center items-center min-h-[100vh] sm:gap-4 sm:py-4">
-        <form
-          onSubmit={handleUpdateProject}
-          className="w-[100%] px-5 md:w-[1000px] pb-5"
-        >
-          <div className="space-y-12">
-            <div className="border-b border-gray-900/10 pb-12">
-              <div className="flex flex-col gap-2 items-start justify-between sm:items-center sm:flex-row">
-                <h2 className="font-semibold leading-7 text-gray-900 text-3xl">
-                  UPDATE PROJECT
-                </h2>
-                <Button onClick={handleReturnToDashboard}>
-                  Return to Dashboard
-                </Button>
-              </div>
-              <div className="mt-10 flex flex-col gap-5">
-                <div className="w-full sm:col-span-4">
-                  <img
-                    src={
-                      projectBannerPreview
-                        ? projectBannerPreview
-                        : "/avatarHolder.jpg"
-                    }
-                    alt="projectBanner"
-                    className="w-full h-auto"
-                  />
-                  <div className="relative">
-                    <input
-                      type="file"
-                      onChange={handleProjectBanner}
-                      className="avatar-update-btn mt-4 w-full"
-                    />
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Project Title
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <input
-                        type="text"
-                        className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="MERN STACK PORTFOLIO"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Description
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <Textarea
-                        placeholder="Feature 1. Feature 2. Feature 3."
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Technologies Uses In This Project
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <Textarea
-                        placeholder="HTML, CSS, JAVASCRIPT, REACT"
-                        value={technologies}
-                        onChange={(e) => setTechnologies(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Stack
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <Select
-                        value={stack}
-                        onValueChange={(selectedValue) =>
-                          setStack(selectedValue)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Project Stack" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Full Stack">Full Stack</SelectItem>
-                          <SelectItem value="Mern">MERN</SelectItem>
-                          <SelectItem value="Mean">MEAN</SelectItem>
-                          <SelectItem value="Next.JS">NEXT.JS</SelectItem>
-                          <SelectItem value="React.JS">REACT.JS</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Deployed
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <Select
-                        value={deployed}
-                        onValueChange={(selectedValue) =>
-                          setDeployed(selectedValue)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Is this project deployed?" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
+    <div className="container mx-auto p-6">
+      <Button onClick={() => navigate(-1)} className="mb-6">
+        Back to Projects
+      </Button>
 
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Github Repository Link
-                  </label>
-                  <div className="mt-2">
-                    <div className="relative flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 ">
-                      <input
-                        type="text"
-                        className="block flex-1 border-0 bg-transparent py-1.5 pl-8 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="Github Repository Link"
-                        value={gitRepoLink}
-                        onChange={(e) => setGitRepoLink(e.target.value)}
-                      />
-                      <Link className="absolute w-5 h-5 left-1 top-2" />
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full sm:col-span-4">
-                  <label className="block text-sm font-medium leading-6 text-gray-900">
-                    Project Link
-                  </label>
-                  <div className="mt-2">
-                    <div className="relative flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 ">
-                      <input
-                        type="text"
-                        className="block flex-1 border-0 bg-transparent py-1.5 pl-8 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="Github Repository Link"
-                        value={projectLink}
-                        onChange={(e) => setProjectLink(e.target.value)}
-                      />
-                      <Link className="absolute w-5 h-5 left-1 top-2" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow-md p-6"
+      >
+        <h2 className="text-2xl font-bold mb-6">Edit Project</h2>
 
-          <div className="mt-6 flex items-center justify-end gap-x-6">
-            {loading ? (
-              <SpecialLoadingButton content={"Updating"} width={"w-52"} />
-            ) : (
-              <button
-                type="submit"
-                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-52"
-              >
-                Update
-              </button>
-            )}
+        {/* Title */}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Title</label>
+          <Input
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+            required
+          />
+        </div>
+
+        {/* Project Type */}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Project Type</label>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => setFormData({ ...formData, type: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select project type" />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                "Theatrical Production",
+                "Research",
+                "Workshop",
+                "Community Project",
+                "Publication",
+              ].map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Dates */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block mb-2 font-medium">Start Date</label>
+            <Input
+              type="date"
+              value={formData.startDate}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
           </div>
-        </form>
-      </div>
-    </>
+          <div>
+            <label className="block mb-2 font-medium">End Date</label>
+            <Input
+              type="date"
+              value={formData.endDate}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* Status */}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Status</label>
+          <Select
+            value={formData.status}
+            onValueChange={(value) =>
+              setFormData({ ...formData, status: value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Ongoing">Ongoing</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Collaborators */}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Collaborators</label>
+          <div className="flex gap-2 mb-2">
+            <Input
+              value={newCollaborator}
+              onChange={(e) => setNewCollaborator(e.target.value)}
+              placeholder="Add collaborator"
+            />
+            <Button type="button" onClick={handleAddCollaborator}>
+              Add
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.collaborators.map((collab, index) => (
+              <span key={index} className="bg-gray-100 px-2 py-1 rounded">
+                {collab}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Description</label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            required
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Updating..." : "Update Project"}
+        </Button>
+      </form>
+    </div>
   );
 };
 

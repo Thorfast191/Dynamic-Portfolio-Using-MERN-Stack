@@ -19,6 +19,7 @@ import ManageTimeline from "./Pages/ManageTimeline.jsx";
 import ManageProjects from "./Pages/ManageProjects.jsx";
 import ViewProject from "./Pages/ViewProject.jsx";
 import UpdateProject from "./Pages/UpdateProject.jsx";
+import AddProject from "./Pages/sub-components/AddProject";
 // import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
@@ -52,7 +53,8 @@ function App() {
           <Route path="/manage/skills" element={<ManageSkills />} />
           <Route path="/manage/timeline" element={<ManageTimeline />} />
           <Route path="/manage/projects" element={<ManageProjects />} />
-          <Route path="/view/project/:id" element={<ViewProject />} />
+          <Route path="/add-project" element={<AddProject />} />
+          <Route path="/project/:id" element={<ViewProject />} />
           <Route path="/update/project/:id" element={<UpdateProject />} />
         </Routes>
         <ToastContainer

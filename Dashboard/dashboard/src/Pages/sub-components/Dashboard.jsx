@@ -162,54 +162,46 @@ const Dashboard = () => {
                         <TableRow>
                           <TableHead>Title</TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Stack
+                            Type
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Deployed
+                            Status
                           </TableHead>
-                          <TableHead className="md:table-cell">
-                            Update
+                          <TableHead className="hidden md:table-cell">
+                            Start Date
                           </TableHead>
-                          <TableHead className="text-right">Visit</TableHead>
+                          <TableHead className="hidden md:table-cell">
+                            Collaborators
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {projects && projects.length > 0 ? (
-                          projects.map((element) => {
-                            return (
-                              <TableRow className="bg-accent" key={element._id}>
-                                <TableCell>
-                                  <div className="font-medium">
-                                    {element.title}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                  {element.stack}
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                  <Badge
-                                    className="text-xs"
-                                    variant="secondary"
-                                  >
-                                    {element.deployed}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="md:table-cell">
-                                  <Link to={`/update/project/${element._id}`}>
-                                    <Button>Update</Button>
-                                  </Link>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Link
-                                    to={element.projectLink}
-                                    target="_blank"
-                                  >
-                                    <Button>Visit</Button>
-                                  </Link>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })
+                          projects.map((element) => (
+                            <TableRow className="bg-accent" key={element._id}>
+                              <TableCell>
+                                <div className="font-medium">
+                                  {element.title}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                {element.type}
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                <Badge variant="outline">
+                                  {element.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                {new Date(
+                                  element.startDate
+                                ).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                {element.collaborators?.join(", ")}
+                              </TableCell>
+                            </TableRow>
+                          ))
                         ) : (
                           <TableRow>
                             <TableCell className="text-3xl overflow-y-hidden">

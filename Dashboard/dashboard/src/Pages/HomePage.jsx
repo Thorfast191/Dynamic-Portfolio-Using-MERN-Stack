@@ -18,6 +18,7 @@ import {
   LogOut,
   History,
   PanelLeft,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +31,7 @@ import AddSoftwareApplications from "./sub-components/AddSoftwareApplications";
 import AddTimeline from "./sub-components/AddTimeline";
 import Messages from "./sub-components/Messages";
 import Account from "./sub-components/Account";
+import AddPublication from "./sub-components/AddPublication";
 
 const HomePage = () => {
   const [active, setActive] = useState("");
@@ -100,6 +102,25 @@ const HomePage = () => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Add Project</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                      active === "Add Publication"
+                        ? "text-accent-foreground bg-accent"
+                        : "text-muted-foreground"
+                    }  transition-colors hover:text-foreground md:h-8 md:w-8`}
+                    onClick={() => setActive("Add Publication")}
+                  >
+                    <BookOpen className="h-5 w-5" />
+                    <span className="sr-only">Add Publication</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Add Publication</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -257,6 +278,17 @@ const HomePage = () => {
                 </Link>
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
+                    active === "Add Publication"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground "
+                  }`}
+                  onClick={() => setActive("Add Publication")}
+                >
+                  <BookOpen className="h-5 w-5" />
+                  Add Publication
+                </Link>
+                <Link
+                  className={`flex items-center gap-4 px-2.5 ${
                     active === "Add Skill"
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground "
@@ -340,6 +372,9 @@ const HomePage = () => {
               break;
             case "Add Project":
               return <AddProject />;
+              break;
+            case "Add Publication":
+              return <AddPublication />;
               break;
             case "Add Skill":
               return <AddSkill />;
