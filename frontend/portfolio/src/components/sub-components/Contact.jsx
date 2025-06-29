@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
 
 const Contact = () => {
   const [senderName, setSenderName] = useState("");
@@ -36,63 +38,75 @@ const Contact = () => {
   };
 
   return (
-    <>
-      <div className="overflow-x-hidden">
-        <div className="relative mb-8">
-          <h1
-            className="flex gap-4 items-center text-[1.85rem] sm:text-[2.75rem] md:text-[3rem] 
-            lg:text-[3rem] leading-[56px] md:leading-[67px] lg:leading-[90px] 
-            tracking-[15px] mx-auto w-fit font-extrabold about-h1"
-            style={{
-              background: "hsl(222.2 84% 4.9%)",
-            }}
-          >
-            CONTACT
-            <span className="text-tubeLight-effect font-extrabold">ME</span>
-          </h1>
-          <span
-            className="absolute w-full h-1 top-7 sm:top-7 
-          md:top-8 lg:top-11 z-[-1] bg-slate-200"
-          ></span>
-        </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Header Section - Consistent with other pages */}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Contact Me
+        </h1>
+        <div className="w-24 h-1 bg-blue-600 dark:bg-blue-500 mx-auto rounded-full" />
+      </div>
+
+      <Card className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8 max-w-2xl mx-auto">
         <form onSubmit={handleMessage} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2 px-1.5">
-            <Label className="text-xl">Your Name</Label>
-            <Input
-              value={senderName}
-              onChange={(e) => setSenderName(e.target.value)}
-              placeholder="Your Name"
-            />
+          <div className="grid grid-cols-1 gap-6">
+            <div className="flex flex-col gap-2">
+              <Label className="text-lg font-medium text-gray-900 dark:text-gray-200">
+                Your Name
+              </Label>
+              <Input
+                value={senderName}
+                onChange={(e) => setSenderName(e.target.value)}
+                placeholder="John Doe"
+                className="py-5 px-4 text-base"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label className="text-lg font-medium text-gray-900 dark:text-gray-200">
+                Subject
+              </Label>
+              <Input
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Regarding your portfolio"
+                className="py-5 px-4 text-base"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label className="text-lg font-medium text-gray-900 dark:text-gray-200">
+                Message
+              </Label>
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Write your message here..."
+                className="min-h-[150px] py-4 px-4 text-base"
+                required
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-2 px-1.5">
-            <Label className="text-xl">Subject</Label>
-            <Input
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Subject"
-            />
-          </div>
-          <div className="flex flex-col gap-2 px-1.5">
-            <Label className="text-xl">Message</Label>
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Your Message"
-            />
-          </div>
-          <div className="flex justify-end">
+
+          <div className="flex justify-end mt-4">
             {!loading ? (
-              <Button className="w-full sm:w-52">SEND MESSAGE</Button>
+              <Button
+                className="w-full sm:w-48 py-6 text-base font-medium bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                type="submit"
+              >
+                SEND MESSAGE
+              </Button>
             ) : (
-              <button
+              <Button
+                className="w-full sm:w-48 py-6 text-base font-medium"
                 disabled
-                type="button"
-                className="w-full sm:w-52 text-slate-900 bg-white hover:bg-slate-200 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 dark:bg-white dark:hover:bg-slate-200 dark:focus:ring-blue-800 inline-flex items-center"
               >
                 <svg
                   aria-hidden="true"
                   role="status"
-                  className="inline w-4 h-4 me-3 text-slate-950 animate-spin"
+                  className="inline w-4 h-4 me-3 text-white animate-spin"
                   viewBox="0 0 100 101"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -107,12 +121,45 @@ const Contact = () => {
                   />
                 </svg>
                 Sending...
-              </button>
+              </Button>
             )}
           </div>
         </form>
+      </Card>
+
+      <div className="mt-16 text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <p className="mb-4">You can also reach me directly at:</p>
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <div className="flex items-center justify-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+            <span>your.email@example.com</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>+1 (123) 456-7890</span>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

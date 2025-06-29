@@ -1,203 +1,3 @@
-// import { asyncHandler } from "../middlewares/asyncHandler.js";
-// import ErrorHandler from "../middlewares/error.js";
-// import { User } from "../models/userSchema.js";
-// import { v2 as cloudinary } from "cloudinary";
-// import { generateToken } from "../utils/createToken.js";
-
-// //Register User
-// export const registerUser = asyncHandler(async (req, res, next) => {
-//   if (!req.files || Object.keys(req.files).length === 0) {
-//     return next(new ErrorHandler("Please Upload Your Avatar and Resume!", 400));
-//   } // Checking if avatar and resume is uploaded
-
-//   const { avatar, resume } = req.files;
-
-//   const resForAvatar = await cloudinary.uploader.upload(avatar.tempFilePath, {
-//     folder: "Avatars",
-//   }); // Upload avatar to server.
-
-//   if (!resForAvatar || resForAvatar.error) {
-//     console.error(
-//       "Error in uploading avatar: ",
-//       resForAvatar.error || "Unknown Error"
-//     );
-//   }
-
-//   const resForResume = await cloudinary.uploader.upload(resume.tempFilePath, {
-//     folder: "Resume",
-//     resource_type: "raw",
-//   }); // Upload resume to server.
-
-//   if (!resForResume || resForResume.error) {
-//     console.error(
-//       "Error in uploading avatar: ",
-//       resForResume.error || "Unknown Error"
-//     );
-//   }
-
-//   const {
-//     fullName,
-//     email,
-//     phone,
-//     aboutMe,
-//     password,
-//     portfolioURL,
-//     githubURL,
-//     instagramURL,
-//     facebookURL,
-//     linkedinURL,
-//     twitterURL,
-//   } = req.body;
-
-//   // Check if all fields are provided
-//   if (
-//     !fullName ||
-//     !email ||
-//     !phone ||
-//     !aboutMe ||
-//     !password ||
-//     !portfolioURL ||
-//     !githubURL ||
-//     !instagramURL ||
-//     !facebookURL ||
-//     !linkedinURL ||
-//     !twitterURL
-//   ) {
-//     return next(new ErrorHandler("Please fill all fields", 400));
-//   }
-
-//   const user = await User.create({
-//     fullName,
-//     email,
-//     phone,
-//     aboutMe,
-//     password,
-//     avatar: {
-//       public_id: resForAvatar.public_id,
-//       url: resForAvatar.secure_url,
-//     },
-//     resume: {
-//       public_id: resForResume.public_id,
-//       url: resForResume.secure_url,
-//     },
-//     portfolioURL,
-//     githubURL,
-//     instagramURL,
-//     facebookURL,
-//     linkedinURL,
-//     twitterURL,
-//   });
-
-//   generateToken(user, "User Registered Successfully!", 201, res);
-// });
-
-// //Login User
-// export const loginUser = asyncHandler(async (req, res, next) => {
-//   const { email, password } = req.body;
-
-//   if (!email || !password) {
-//     return next(new ErrorHandler("Please Enter Email & Password!", 400));
-//   }
-
-//   const user = await User.findOne({ email }).select("+password");
-
-//   if (!user || !(await user.comparePassword(password))) {
-//     return next(new ErrorHandler("Invalid Email or Password!", 401));
-//   }
-
-//   generateToken(user, "User Logged In Successfully!", 200, res);
-// });
-
-// //Logout User
-// export const logoutUser = asyncHandler(async (req, res, next) => {
-//   res.cookie("token", null, {
-//     expires: new Date(Date.now()),
-//     httpOnly: true,
-//   });
-
-//   res.status(200).json({
-//     success: true,
-//     message: "User Logged Out Successfully!",
-//   });
-// });
-
-// // Get User Profile
-// export const getUserProfile = asyncHandler(async (req, res, next) => {
-//   const user = await User.findById(req.user._id).select("-password");
-
-//   res.status(200).json({
-//     success: true,
-//     data: user,
-//   });
-// });
-
-// // Update User Profile
-// export const updateUserProfile = asyncHandler(async (req, res, next) => {
-//   const updatedUser = {
-//     fullName: req.body.fullName,
-//     email: req.body.email,
-//     phone: req.body.phone,
-//     aboutMe: req.body.aboutMe,
-//     portfolioURL: req.body.portfolioURL,
-//     githubURL: req.body.githubURL,
-//     instagramURL: req.body.instagramURL,
-//     facebookURL: req.body.facebookURL,
-//     linkedinURL: req.body.linkedinURL,
-//     twitterURL: req.body.twitterURL,
-//   };
-
-//   //Update Avatar
-//   if (req.files && req.files.avatar) {
-//     const updatedAvatar = req.files.avatar;
-//     const user = await User.findById(req.user._id);
-//     const avatarId = user.avatar.public_id;
-//     await cloudinary.uploader.destroy(avatarId);
-
-//     const resForUpdatedAvatar = await cloudinary.uploader.upload(
-//       updatedAvatar.tempFilePath,
-//       {
-//         folder: "Avatars",
-//       }
-//     ); // Upload avatar to server.
-
-//     updatedUser.avatar = {
-//       public_id: resForUpdatedAvatar.public_id,
-//       url: resForUpdatedAvatar.secure_url,
-//     };
-//   }
-//   //Update Resume
-//   if (req.files && req.files.resume) {
-//     const updatedResume = req.files.resume;
-//     const user = await User.findById(req.user._id);
-//     const resumeId = user.resume.public_id;
-//     await cloudinary.uploader.destroy(resumeId);
-
-//     const resForUpdatedResume = await cloudinary.uploader.upload(
-//       updatedResume.tempFilePath,
-//       {
-//         folder: "Resume",
-//       }
-//     ); // Upload resume to server.
-
-//     updatedUser.resume = {
-//       public_id: resForUpdatedResume.public_id,
-//       url: resForUpdatedResume.secure_url,
-//     };
-//   }
-
-//   const user = await User.findByIdAndUpdate(req.user._id, updatedUser, {
-//     new: true,
-//     runValidators: true,
-//     useFindAndModify: false,
-//   });
-
-//   res.status(200).json({
-//     success: true,
-//     message: "User Profile Updated Successfully!",
-//     data: user,
-//   });
-// });
-
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import ErrorHandler from "../middlewares/error.js";
 import { User } from "../models/userSchema.js";
@@ -238,12 +38,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
       resForResume.error || "Unknown Error"
     );
   }
-
-  // // Modify resume URL for inline viewing
-  // const resumeURL = resForResume.secure_url.replace(
-  //   "/upload/",
-  //   "/upload/fl_inline/"
-  // );
 
   const {
     fullName,
@@ -330,15 +124,6 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Get User Profile
-// export const getUserProfile = asyncHandler(async (req, res, next) => {
-//   const user = await User.findById(req.user._id).select("-password");
-
-//   res.status(200).json({
-//     success: true,
-//     data: user,
-//   });
-// });
 export const getUser = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({
@@ -395,12 +180,6 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
         folder: "Resume",
       }
     );
-
-    // // Modify URL for inline viewing
-    // const updatedResumeURL = resForUpdatedResume.secure_url.replace(
-    //   "/upload/",
-    //   "/upload/fl_inline/"
-    // );
 
     updatedUser.resume = {
       public_id: resForUpdatedResume.public_id,
