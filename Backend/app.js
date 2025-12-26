@@ -56,7 +56,11 @@ app.use("/api/timeline", timelineRouter);
 app.use("/api/software/applications", softwareApplicationsRouter);
 app.use("/api/skills", skillRouter);
 app.use("/api/projects", projectRouter);
+<<<<<<< HEAD
 app.use("/api/publications", publicationRouter);
+=======
+app.use("/api/research", projectRouter);
+>>>>>>> 4a73a3b (updated)
 
 dbConnection();
 

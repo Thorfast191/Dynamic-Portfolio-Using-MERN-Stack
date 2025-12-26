@@ -7,7 +7,6 @@ export function ModeToggle() {
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", theme === "light");
   };
 
   return (

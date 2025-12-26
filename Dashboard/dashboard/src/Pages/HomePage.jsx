@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { BookOpen } from "lucide-react";
 import Dashboard from "./sub-components/Dashboard";
 import AddProject from "./sub-components/AddProject";
 import AddSkill from "./sub-components/AddSkill";
@@ -31,7 +32,11 @@ import AddSoftwareApplications from "./sub-components/AddSoftwareApplications";
 import AddTimeline from "./sub-components/AddTimeline";
 import Messages from "./sub-components/Messages";
 import Account from "./sub-components/Account";
+<<<<<<< HEAD
 import AddPublication from "./sub-components/AddPublication";
+=======
+import AddResearch from "./sub-components/AddResearch";
+>>>>>>> 4a73a3b (updated)
 
 const HomePage = () => {
   const [active, setActive] = useState("");
@@ -215,6 +220,24 @@ const HomePage = () => {
                 <TooltipContent side="right">Account</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                      active === "Add Research"
+                        ? "text-accent-foreground bg-accent"
+                        : "text-muted-foreground"
+                    }  transition-colors hover:text-foreground md:h-8 md:w-8`}
+                    onClick={() => setActive("Add Research")}
+                  >
+                    <BookOpen className="h-5 w-5" />
+                    <span className="sr-only">Add Research</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Add Research</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </nav>
           <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
             <TooltipProvider>
@@ -297,6 +320,17 @@ const HomePage = () => {
                 >
                   <PencilRuler className="h-5 w-5" />
                   Add Skill
+                </Link>
+                <Link
+                  className={`flex items-center gap-4 px-2.5 ${
+                    active === "Add Research"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground "
+                  }`}
+                  onClick={() => setActive("Add Research")}
+                >
+                  <BookOpen className="h-5 w-5" />
+                  Add Research
                 </Link>
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
@@ -393,6 +427,9 @@ const HomePage = () => {
               break;
             default:
               return <Dashboard />;
+              break;
+            case "Add Research":
+              return <AddResearch />;
               break;
           }
         })()}
