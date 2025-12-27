@@ -6,19 +6,58 @@ const publicationSlice = createSlice({
   initialState: {
     loading: false,
     publications: [],
-    singlePublication: null,
     error: null,
     message: null,
+    singlePublication: {},
   },
   reducers: {
-    // GET ALL
+    // Get all publications
     getAllPublicationsRequest(state) {
       state.publications = [];
       state.error = null;
       state.loading = true;
     },
     getAllPublicationsSuccess(state, action) {
-      state.publications = action.payload;
+      console.log("Reducer: Received publications:", action.payload);
+      console.log("Type of payload:", typeof action.payload);
+      console.log("Is array?", Array.isArray(action.payload));
+
+      // Ensure we always have an array
+      let publicationsArray = [];
+
+      if (Array.isArray(action.payload)) {
+        publicationsArray = action.payload;
+      } else if (action.payload && typeof action.payload === "object") {
+        // Try to extract publications from object
+        publicationsArray =
+          action.payload.publications || action.payload.data || [];
+      }
+
+      console.log("Processed publications array:", publicationsArray);
+
+      // Transform each publication to ensure all fields exist
+      const safePublications = publicationsArray.map((pub) => {
+        // Create a safe copy with defaults
+        const safePub = {
+          _id: pub._id || pub.id || "",
+          title: pub.title || "Untitled Publication",
+          description: pub.description || "No description provided",
+          paperId: pub.paperId || "N/A",
+          platform: pub.platform || "Other",
+          program: pub.program || "",
+          status: pub.status || "Ongoing",
+          createdAt: pub.createdAt || new Date().toISOString(),
+          updatedAt: pub.updatedAt || pub.createdAt || new Date().toISOString(),
+          paperAttachment: pub.paperAttachment || null,
+          codeAttachment: pub.codeAttachment || null,
+          images: pub.images || [],
+        };
+
+        console.log("Transformed publication:", safePub);
+        return safePub;
+      });
+
+      state.publications = safePublications;
       state.error = null;
       state.loading = false;
     },
@@ -27,7 +66,7 @@ const publicationSlice = createSlice({
       state.loading = false;
     },
 
-    // GET SINGLE
+    // Get single publication
     getSinglePublicationRequest(state) {
       state.loading = true;
       state.error = null;
@@ -42,24 +81,41 @@ const publicationSlice = createSlice({
       state.loading = false;
     },
 
-    // ADD
+    // Add new publication
     addNewPublicationRequest(state) {
       state.loading = true;
       state.error = null;
       state.message = null;
     },
     addNewPublicationSuccess(state, action) {
+      state.error = null;
       state.loading = false;
       state.message = action.payload;
-      state.error = null;
     },
     addNewPublicationFailed(state, action) {
-      state.loading = false;
       state.error = action.payload;
+      state.loading = false;
       state.message = null;
     },
 
-    // UPDATE
+    // Delete publication
+    deletePublicationRequest(state) {
+      state.loading = true;
+      state.error = null;
+      state.message = null;
+    },
+    deletePublicationSuccess(state, action) {
+      state.error = null;
+      state.loading = false;
+      state.message = action.payload;
+    },
+    deletePublicationFailed(state, action) {
+      state.error = action.payload;
+      state.loading = false;
+      state.message = null;
+    },
+
+    // Update publication
     updatePublicationRequest(state) {
       state.loading = true;
       state.error = null;
@@ -71,60 +127,59 @@ const publicationSlice = createSlice({
       state.error = null;
     },
     updatePublicationFailed(state, action) {
-      state.loading = false;
       state.error = action.payload;
+      state.loading = false;
       state.message = null;
     },
 
-    // DELETE
-    deletePublicationRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    deletePublicationSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload;
-      state.error = null;
-    },
-    deletePublicationFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-      state.message = null;
-    },
-
-    // RESET
+    // Reset and clear
     resetPublicationSlice(state) {
       state.error = null;
       state.message = null;
       state.loading = false;
     },
-    clearAllErrors(state) {
+    clearAllPublicationErrors(state) {
       state.error = null;
     },
   },
 });
 
-// Action Creators
-export const {
-  getSinglePublicationRequest,
-  getSinglePublicationSuccess,
-  getSinglePublicationFailed,
-} = publicationSlice.actions;
-
+// Action creators for publications
 export const getAllPublications = () => async (dispatch) => {
+  dispatch(publicationSlice.actions.getAllPublicationsRequest());
   try {
-    dispatch(publicationSlice.actions.getAllPublicationsRequest());
+    console.log("Fetching publications from API...");
+
     const response = await axios.get(
       "http://localhost:4000/api/publications/getall",
       { withCredentials: true }
     );
+
+    console.log("API Response:", response);
+    console.log("Response data:", response.data);
+    console.log("Response data publications:", response.data?.publications);
+
+    if (response.data?.publications) {
+      console.log("Publications count:", response.data.publications.length);
+      if (response.data.publications.length > 0) {
+        console.log("First publication raw:", response.data.publications[0]);
+        console.log(
+          "First publication keys:",
+          Object.keys(response.data.publications[0])
+        );
+      }
+    }
+
     dispatch(
       publicationSlice.actions.getAllPublicationsSuccess(
         response.data.publications
       )
     );
+    dispatch(publicationSlice.actions.clearAllPublicationErrors());
   } catch (error) {
+    console.error("Error fetching publications:", error);
+    console.error("Error response:", error.response?.data);
+
     dispatch(
       publicationSlice.actions.getAllPublicationsFailed(
         error.response?.data?.message || "Failed to fetch publications"
@@ -134,86 +189,103 @@ export const getAllPublications = () => async (dispatch) => {
 };
 
 export const getSinglePublication = (id) => async (dispatch) => {
+  dispatch(publicationSlice.actions.getSinglePublicationRequest());
   try {
-    if (!id) {
-      throw new Error("No publication ID provided");
-    }
-
-    dispatch(publicationSlice.actions.getSinglePublicationRequest());
-    const response = await axios.get(
+    const { data } = await axios.get(
       `http://localhost:4000/api/publications/get/${id}`,
       { withCredentials: true }
     );
-
     dispatch(
-      publicationSlice.actions.getSinglePublicationSuccess(
-        response.data.publication
-      )
+      publicationSlice.actions.getSinglePublicationSuccess(data.publication)
     );
   } catch (error) {
-    const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "Failed to fetch publication";
-    dispatch(publicationSlice.actions.getSinglePublicationFailed(errorMessage));
-    throw error; // Rethrow for component handling
+    dispatch(
+      publicationSlice.actions.getSinglePublicationFailed(
+        error.response?.data?.message || "Failed to fetch publication"
+      )
+    );
   }
 };
 
-export const addNewPublication = (formData) => async (dispatch) => {
+export const addNewPublication = (publicationData) => async (dispatch) => {
+  dispatch(publicationSlice.actions.addNewPublicationRequest());
   try {
-    dispatch(publicationSlice.actions.addNewPublicationRequest());
+    const formData = new FormData();
+
+    // Add text fields
+    formData.append("title", publicationData.title);
+    formData.append("description", publicationData.description);
+    formData.append("paperId", publicationData.paperId || "");
+    formData.append("platform", publicationData.platform || "");
+    formData.append("program", publicationData.program || "");
+    formData.append("status", publicationData.status || "Ongoing");
+
+    // Add paper attachment
+    if (publicationData.paperAttachment) {
+      formData.append("publication", publicationData.paperAttachment);
+    }
+
+    // Add code attachment
+    if (publicationData.codeAttachment) {
+      formData.append("codeAttachment", publicationData.codeAttachment);
+    }
+
+    // Add images
+    if (publicationData.images && publicationData.images.length > 0) {
+      publicationData.images.forEach((image) => {
+        formData.append("images", image);
+      });
+    }
+
+    console.log("Sending publication data:", {
+      title: publicationData.title,
+      description: publicationData.description,
+      hasPaperAttachment: !!publicationData.paperAttachment,
+      hasCodeAttachment: !!publicationData.codeAttachment,
+      imagesCount: publicationData.images?.length || 0,
+    });
+
     const { data } = await axios.post(
       "http://localhost:4000/api/publications/add",
       formData,
       {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    dispatch(publicationSlice.actions.addNewPublicationSuccess(data.message));
-    dispatch(getAllPublications()); // Refresh list
-  } catch (error) {
-    dispatch(
-      publicationSlice.actions.addNewPublicationFailed(
-        error.response?.data?.message || "Failed to add publication"
-      )
-    );
-  }
-};
 
-export const updatePublication = (id, formData) => async (dispatch) => {
-  try {
-    dispatch(publicationSlice.actions.updatePublicationRequest());
-    const { data } = await axios.put(
-      `http://localhost:4000/api/publications/update/${id}`,
-      formData,
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
-    dispatch(publicationSlice.actions.updatePublicationSuccess(data.message));
-    dispatch(getAllPublications()); // Refresh list
+    console.log("Publication added successfully:", data);
+
+    dispatch(publicationSlice.actions.addNewPublicationSuccess(data.message));
+
+    dispatch(getAllPublications()); // Refresh the list
+    return data;
   } catch (error) {
-    dispatch(
-      publicationSlice.actions.updatePublicationFailed(
-        error.response?.data?.message || "Failed to update publication"
-      )
-    );
+    const errorMessage = error.response?.data?.message || error.message;
+    console.error("Error adding publication:", errorMessage);
+    dispatch(publicationSlice.actions.addNewPublicationFailed(errorMessage));
+    throw new Error(errorMessage);
   }
 };
 
 export const deletePublication = (id) => async (dispatch) => {
+  dispatch(publicationSlice.actions.deletePublicationRequest());
   try {
-    dispatch(publicationSlice.actions.deletePublicationRequest());
-    await axios.delete(`http://localhost:4000/api/publications/delete/${id}`, {
-      withCredentials: true,
-    });
-    dispatch(
-      publicationSlice.actions.deletePublicationSuccess("Publication deleted")
+    const response = await axios.delete(
+      `http://localhost:4000/api/publications/delete/${id}`,
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
-    dispatch(getAllPublications()); // Refresh list
+    dispatch(
+      publicationSlice.actions.deletePublicationSuccess(response.data.message)
+    );
+    dispatch(getAllPublications()); // Refresh the list after deletion
   } catch (error) {
     dispatch(
       publicationSlice.actions.deletePublicationFailed(
@@ -223,12 +295,38 @@ export const deletePublication = (id) => async (dispatch) => {
   }
 };
 
-export const clearAllPublicationErrors = () => (dispatch) => {
-  dispatch(publicationSlice.actions.clearAllErrors());
+export const updatePublication = (id, newData) => async (dispatch) => {
+  dispatch(publicationSlice.actions.updatePublicationRequest());
+  try {
+    const response = await axios.put(
+      `http://localhost:4000/api/publications/update/${id}`,
+      newData,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    dispatch(
+      publicationSlice.actions.updatePublicationSuccess(response.data.message)
+    );
+    dispatch(getAllPublications());
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Update failed";
+    dispatch(publicationSlice.actions.updatePublicationFailed(errorMessage));
+    throw new Error(errorMessage);
+  }
 };
 
 export const resetPublicationSlice = () => (dispatch) => {
   dispatch(publicationSlice.actions.resetPublicationSlice());
+};
+
+export const clearAllPublicationErrors = () => (dispatch) => {
+  dispatch(publicationSlice.actions.clearAllPublicationErrors());
 };
 
 export default publicationSlice.reducer;

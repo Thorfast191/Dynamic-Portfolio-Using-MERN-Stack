@@ -33,21 +33,13 @@ import SpecialLoadingButton from "./SpecialLoadingButton";
 import { clearAllTimelineErrors } from "@/store/slices/timelineSlice";
 import { clearAllProjectErrors } from "@/store/slices/projectSlice";
 import {
-<<<<<<< HEAD
   clearAllPublicationErrors,
   deletePublication,
   getAllPublications,
   resetPublicationSlice,
 } from "@/store/slices/publicationSlice";
-=======
-  clearAllResearchErrors,
-  deleteResearch,
-  getAllResearch,
-  resetResearchSlice,
-} from "@/store/slices/researchSlice";
-import { BookOpen, ExternalLink } from "lucide-react";
+import { BookOpen, ExternalLink, Eye, X } from "lucide-react";
 
->>>>>>> 4a73a3b (updated)
 const Dashboard = () => {
   const navigateTo = useNavigate();
 
@@ -61,11 +53,11 @@ const Dashboard = () => {
   const gotoManageProjects = () => {
     navigateTo("/manage/projects");
   };
-  const gotoManageResearch = () => {
-    navigateTo("/manage/research");
+  const gotoManagePublications = () => {
+    navigateTo("/manage/publications");
   };
-  const gotoAddResearch = () => {
-    navigateTo("/add/research");
+  const gotoAddPublication = () => {
+    navigateTo("/add/publication");
   };
 
   // Selectors
@@ -97,53 +89,59 @@ const Dashboard = () => {
   const { projects, error: projectError } = useSelector(
     (state) => state.project
   );
-  const {
-    research,
-    loading: researchLoading,
-    error: researchError,
-    message: researchMessage,
-  } = useSelector((state) => state.research);
 
   // State for delete operations
   const [appId, setAppId] = useState(null);
-  const [researchId, setResearchId] = useState(null);
+  const [publicationId, setPublicationId] = useState(null);
+  const [selectedPublication, setSelectedPublication] = useState(null);
+  const [showAttachments, setShowAttachments] = useState(false);
 
   // Delete handlers
   const handleDeleteSoftwareApp = (id) => {
     setAppId(id);
     dispatch(deleteSoftwareApplication(id));
   };
-<<<<<<< HEAD
-  const [PublicationId, setPublicationId] = useState(null);
-  const handleDeletePublications = (id) => {
+
+  const handleDeletePublication = (id) => {
     setPublicationId(id);
     dispatch(deletePublication(id));
   };
-=======
 
-  const handleDeleteResearch = (id) => {
-    setResearchId(id);
-    dispatch(deleteResearch(id));
+  const viewAttachments = (publication) => {
+    // Debug: Check what's in the publication object
+    console.log("View attachments - publication data:", publication);
+    console.log("Paper attachment:", publication?.paperAttachment);
+    console.log("Publication file:", publication?.publicationFile);
+    console.log("Code attachment:", publication?.codeAttachment);
+    console.log("Images:", publication?.images);
+
+    setSelectedPublication(publication);
+    setShowAttachments(true);
   };
 
->>>>>>> 4a73a3b (updated)
   const dispatch = useDispatch();
 
   useEffect(() => {
-<<<<<<< HEAD
+    // Fetch data on component mount
+    console.log("Dashboard mounted, fetching publications...");
     dispatch(getAllPublications());
     dispatch(getAllSoftwareApplications());
-    // Add other data fetches here if needed
   }, [dispatch]);
-  useEffect(() => {
-    // dispatch(getAllTimeline());
-=======
-    // Fetch data on component mount
-    dispatch(getAllSoftwareApplications());
-    dispatch(getAllResearch());
 
+  useEffect(() => {
+    // Debug: Log publications when they change
+    if (publications && publications.length > 0) {
+      console.log("Publications fetched:", publications);
+      console.log("First publication:", publications[0]);
+      console.log(
+        "First publication structure:",
+        JSON.stringify(publications[0], null, 2)
+      );
+    }
+  }, [publications]);
+
+  useEffect(() => {
     // Error handling
->>>>>>> 4a73a3b (updated)
     if (skillError) {
       toast.error(skillError);
       dispatch(clearAllSkillErrors());
@@ -156,18 +154,9 @@ const Dashboard = () => {
       toast.error(publicationsError);
       dispatch(clearAllPublicationErrors());
     }
-    if (publicationsMessage) {
-      toast.success(publicationsMessage);
-      setPublicationId(null);
-      dispatch(resetPublicationSlice());
-    }
     if (projectError) {
       toast.error(projectError);
       dispatch(clearAllProjectErrors());
-    }
-    if (researchError) {
-      toast.error(researchError);
-      dispatch(clearAllResearchErrors());
     }
     if (timelineError) {
       toast.error(timelineError);
@@ -181,11 +170,11 @@ const Dashboard = () => {
       dispatch(resetSoftwareApplicationSlice());
       dispatch(getAllSoftwareApplications());
     }
-    if (researchMessage) {
-      toast.success(researchMessage);
-      setResearchId(null);
-      dispatch(resetResearchSlice());
-      dispatch(getAllResearch());
+    if (publicationsMessage) {
+      toast.success(publicationsMessage);
+      setPublicationId(null);
+      dispatch(resetPublicationSlice());
+      dispatch(getAllPublications());
     }
     if (timelineMessage) {
       toast.success(timelineMessage);
@@ -207,10 +196,26 @@ const Dashboard = () => {
     timelineError,
     timelineLoading,
     timelineMessage,
-    researchError,
-    researchMessage,
     projectError,
   ]);
+
+  // Helper function to check if publication has any attachments
+  const hasAttachments = (publication) => {
+    if (!publication) return false;
+
+    const hasPaper =
+      publication.paperAttachment?.url || publication.publicationFile?.url;
+    const hasCode = publication.codeAttachment?.url;
+    const hasImages = publication.images && publication.images.length > 0;
+
+    console.log(`Checking attachments for ${publication.title}:`, {
+      hasPaper,
+      hasCode,
+      hasImages,
+    });
+
+    return hasPaper || hasCode || hasImages;
+  };
 
   return (
     <>
@@ -253,16 +258,16 @@ const Dashboard = () => {
               </Card>
               <Card className="flex flex-col justify-center">
                 <CardHeader className="pb-2">
-                  <CardTitle>Research</CardTitle>
+                  <CardTitle>Publications</CardTitle>
                   <CardTitle className="text-6xl">
-                    {research?.length || 0}
+                    {publications?.length || 0}
                   </CardTitle>
                 </CardHeader>
                 <CardFooter className="flex gap-2">
-                  <Button onClick={gotoManageResearch} variant="outline">
+                  <Button onClick={gotoManagePublications} variant="outline">
                     Manage
                   </Button>
-                  <Button onClick={gotoAddResearch}>
+                  <Button onClick={gotoAddPublication}>
                     <BookOpen className="w-4 h-4 mr-2" />
                     Add New
                   </Button>
@@ -288,55 +293,19 @@ const Dashboard = () => {
                         <TableRow>
                           <TableHead>Title</TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Type
+                            Stack
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
                             Status
                           </TableHead>
-<<<<<<< HEAD
-                          <TableHead className="hidden md:table-cell">
-                            Start Date
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Collaborators
-                          </TableHead>
-=======
                           <TableHead className="md:table-cell">
                             Actions
                           </TableHead>
                           <TableHead className="text-right">Links</TableHead>
->>>>>>> 4a73a3b (updated)
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {projects && projects.length > 0 ? (
-<<<<<<< HEAD
-                          projects.map((element) => (
-                            <TableRow className="bg-accent" key={element._id}>
-                              <TableCell>
-                                <div className="font-medium">
-                                  {element.title}
-                                </div>
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                {element.type}
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                <Badge variant="outline">
-                                  {element.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                {new Date(
-                                  element.startDate
-                                ).toLocaleDateString()}
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                {element.collaborators?.join(", ")}
-                              </TableCell>
-                            </TableRow>
-                          ))
-=======
                           projects.slice(0, 5).map((element) => {
                             return (
                               <TableRow className="bg-accent" key={element._id}>
@@ -395,7 +364,6 @@ const Dashboard = () => {
                               </TableRow>
                             );
                           })
->>>>>>> 4a73a3b (updated)
                         ) : (
                           <TableRow>
                             <TableCell colSpan={5} className="text-center py-8">
@@ -471,17 +439,17 @@ const Dashboard = () => {
               </TabsContent>
             </Tabs>
 
-            {/* Research & Timeline Section */}
+            {/* Publications & Timeline Section */}
             <Tabs>
               <TabsContent className="grid min-[1050px]:grid-cols-2 gap-4">
-                {/* Research Table */}
+                {/* Publications Table */}
                 <Card>
                   <CardHeader className="px-7">
                     <div className="flex justify-between items-center">
-                      <CardTitle>Research Publications</CardTitle>
-                      <Button onClick={gotoAddResearch} size="sm">
+                      <CardTitle>Publications</CardTitle>
+                      <Button onClick={gotoAddPublication} size="sm">
                         <BookOpen className="w-4 h-4 mr-2" />
-                        Add Research
+                        Add Publication
                       </Button>
                     </div>
                   </CardHeader>
@@ -491,14 +459,19 @@ const Dashboard = () => {
                         <TableRow>
                           <TableHead>Title</TableHead>
                           <TableHead className="hidden md:table-cell">
+                            Platform
+                          </TableHead>
+                          <TableHead className="hidden md:table-cell">
                             Status
                           </TableHead>
                           <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {research && research.length > 0 ? (
-                          research.slice(0, 5).map((element) => {
+                        {publications && publications.length > 0 ? (
+                          publications.slice(0, 5).map((element) => {
+                            const hasAnyAttachments = hasAttachments(element);
+
                             return (
                               <TableRow className="bg-accent" key={element._id}>
                                 <TableCell className="font-medium">
@@ -506,8 +479,22 @@ const Dashboard = () => {
                                     {element.title}
                                   </div>
                                   <div className="text-sm text-muted-foreground truncate max-w-xs">
-                                    {element.description}
+                                    {element.description?.slice(0, 80)}
+                                    {element.description?.length > 80
+                                      ? "..."
+                                      : ""}
                                   </div>
+                                  {/* Show paper ID if available */}
+                                  {element.paperId && (
+                                    <div className="text-xs text-blue-600 mt-1">
+                                      {element.paperId}
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                  <Badge variant="outline">
+                                    {element.platform || "Other"}
+                                  </Badge>
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell">
                                   <Badge
@@ -516,7 +503,9 @@ const Dashboard = () => {
                                         ? "default"
                                         : element.status === "Ongoing"
                                         ? "secondary"
-                                        : "outline"
+                                        : element.status === "Hold"
+                                        ? "outline"
+                                        : "destructive"
                                     }
                                   >
                                     {element.status}
@@ -525,14 +514,25 @@ const Dashboard = () => {
                                 <TableCell className="text-center">
                                   <div className="flex justify-center gap-2">
                                     <Link
-                                      to={`/update/research/${element._id}`}
+                                      to={`/update/publication/${element._id}`}
                                     >
                                       <Button size="sm" variant="outline">
                                         Edit
                                       </Button>
                                     </Link>
-                                    {researchLoading &&
-                                    researchId === element._id ? (
+                                    {/* View attachments if available */}
+                                    {hasAnyAttachments && (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => viewAttachments(element)}
+                                        title="View Attachments"
+                                      >
+                                        <Eye className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                    {publicationsLoading &&
+                                    publicationId === element._id ? (
                                       <SpecialLoadingButton
                                         content={"Deleting"}
                                         width={"w-20"}
@@ -542,7 +542,7 @@ const Dashboard = () => {
                                         size="sm"
                                         variant="destructive"
                                         onClick={() =>
-                                          handleDeleteResearch(element._id)
+                                          handleDeletePublication(element._id)
                                         }
                                       >
                                         Delete
@@ -555,14 +555,16 @@ const Dashboard = () => {
                           })
                         ) : (
                           <TableRow>
-                            <TableCell colSpan={3} className="text-center py-8">
+                            <TableCell colSpan={4} className="text-center py-8">
                               <div className="flex flex-col items-center gap-2">
                                 <BookOpen className="w-12 h-12 text-muted-foreground" />
                                 <p className="text-muted-foreground">
-                                  No research publications yet
+                                  {publicationsLoading
+                                    ? "Loading publications..."
+                                    : "No publications yet"}
                                 </p>
-                                <Button onClick={gotoAddResearch} size="sm">
-                                  Add Your First Research
+                                <Button onClick={gotoAddPublication} size="sm">
+                                  Add Your First Publication
                                 </Button>
                               </div>
                             </TableCell>
@@ -571,6 +573,17 @@ const Dashboard = () => {
                       </TableBody>
                     </Table>
                   </CardContent>
+                  {publications && publications.length > 5 && (
+                    <CardFooter className="flex justify-center">
+                      <Button
+                        onClick={gotoManagePublications}
+                        variant="outline"
+                        size="sm"
+                      >
+                        View All Publications ({publications.length})
+                      </Button>
+                    </CardFooter>
+                  )}
                 </Card>
 
                 {/* Timeline Table */}
@@ -711,143 +724,6 @@ const Dashboard = () => {
                           })
                         ) : (
                           <TableRow>
-<<<<<<< HEAD
-                            <TableCell className="text-3xl overflow-y-hidden">
-                              You have not added any skill.
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="px-7">
-                    <CardTitle>Publications</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Title</TableHead>
-                          <TableHead className="md:table-cell">
-                            Description
-                          </TableHead>
-                          <TableHead className="md:table-cell">
-                            Document
-                          </TableHead>
-                          <TableHead className="md:table-cell text-center">
-                            Action
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {publications && publications.length > 0 ? (
-                          publications.map((pub) => (
-                            <TableRow className="bg-accent" key={pub._id}>
-                              <TableCell className="font-medium">
-                                {pub.title}
-                              </TableCell>
-                              <TableCell className="md:table-cell">
-                                {pub.description?.slice(0, 50)}...
-                              </TableCell>
-                              <TableCell className="md:table-cell">
-                                {pub._id ? (
-                                  <Link
-                                    to={`/publications/${pub._id}`}
-                                    className="text-blue-500 hover:underline"
-                                  >
-                                    View Document
-                                  </Link>
-                                ) : (
-                                  <span className="text-gray-400">
-                                    Loading ID...
-                                  </span>
-                                )}
-                              </TableCell>
-                              <TableCell className="md:table-cell text-center">
-                                {publicationsLoading &&
-                                PublicationId === pub._id ? (
-                                  <SpecialLoadingButton
-                                    content={"Deleting"}
-                                    width={"w-fit"}
-                                  />
-                                ) : (
-                                  <Button
-                                    variant="destructive"
-                                    onClick={() =>
-                                      handleDeletePublications(pub._id)
-                                    }
-                                  >
-                                    Delete
-                                  </Button>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell
-                              className="text-3xl overflow-y-hidden"
-                              colSpan={4}
-                            >
-                              No publications found
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="px-7 flex items-center justify-between flex-row">
-                    <CardTitle>Timeline</CardTitle>
-                    <Button onClick={gotoMangeTimeline} className="w-fit">
-                      Manage Timeline
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Title</TableHead>
-                          {/* Added missing Description header */}
-                          <TableHead className="md:table-cell">
-                            Description
-                          </TableHead>
-                          <TableHead className="md:table-cell">From</TableHead>
-                          <TableHead className="md:table-cell text-right">
-                            To
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {timeline && timeline.length > 0 ? (
-                          timeline.map((element) => (
-                            <TableRow className="bg-accent" key={element._id}>
-                              <TableCell className="font-medium">
-                                {element.title}
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                {/* Verify API actually returns 'description' (common typo: 'decription') */}
-                                {element.description || "No description"}
-                              </TableCell>
-                              <TableCell className="md:table-cell">
-                                {element.from}
-                              </TableCell>
-                              <TableCell className="md:table-cell text-right">
-                                {element.to}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell
-                              colSpan={4}
-                              className="text-3xl text-center"
-                            >
-                              No timeline entries found
-=======
                             <TableCell colSpan={4} className="text-center py-8">
                               <div className="flex flex-col items-center gap-2">
                                 <p className="text-muted-foreground">
@@ -857,7 +733,6 @@ const Dashboard = () => {
                                   <Button>Add Software</Button>
                                 </Link>
                               </div>
->>>>>>> 4a73a3b (updated)
                             </TableCell>
                           </TableRow>
                         )}
@@ -870,6 +745,232 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
+
+      {/* Attachments Modal */}
+      {showAttachments && selectedPublication && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-xl font-semibold">
+                  Attachments for {selectedPublication.title || "Publication"}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {selectedPublication.description || "No description"}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAttachments(false);
+                  setSelectedPublication(null);
+                }}
+                className="text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Paper Attachment - Check both possible field names */}
+              {(selectedPublication.paperAttachment?.url ||
+                selectedPublication.publicationFile?.url) && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-blue-100 p-2 rounded">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <h4 className="font-medium text-lg">Paper Attachment</h4>
+                  </div>
+                  <p className="text-gray-600 mb-3">
+                    Download the research paper/document
+                  </p>
+                  <a
+                    href={
+                      selectedPublication.paperAttachment?.url ||
+                      selectedPublication.publicationFile?.url
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View/Download Paper
+                  </a>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {(selectedPublication.paperAttachment?.name ||
+                      selectedPublication.publicationFile?.name) &&
+                      `File: ${
+                        selectedPublication.paperAttachment?.name ||
+                        selectedPublication.publicationFile?.name
+                      }`}
+                  </p>
+                </div>
+              )}
+
+              {/* Code Attachment */}
+              {selectedPublication.codeAttachment?.url && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-green-100 p-2 rounded">
+                      <svg
+                        className="w-5 h-5 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="font-medium text-lg">Code Attachment</h4>
+                  </div>
+                  <p className="text-gray-600 mb-3">
+                    Download the source code/files
+                  </p>
+                  <a
+                    href={selectedPublication.codeAttachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View/Download Code
+                  </a>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {selectedPublication.codeAttachment.name &&
+                      `File: ${selectedPublication.codeAttachment.name}`}
+                  </p>
+                </div>
+              )}
+
+              {/* Images */}
+              {selectedPublication.images &&
+              selectedPublication.images.length > 0 ? (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-purple-100 p-2 rounded">
+                      <svg
+                        className="w-5 h-5 text-purple-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="font-medium text-lg">
+                      Images ({selectedPublication.images.length})
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {selectedPublication.images.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={img.url}
+                          alt={`Publication image ${index + 1}`}
+                          className="w-full h-40 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/300x200?text=Image+Not+Found";
+                          }}
+                        />
+                        <a
+                          href={img.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100"
+                          title="View full size"
+                        >
+                          <Eye className="w-6 h-6 text-white" />
+                        </a>
+                        <div className="text-xs text-gray-500 truncate mt-1">
+                          {img.name || `Image ${index + 1}`}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* No Attachments Message */}
+              {!(
+                selectedPublication.paperAttachment?.url ||
+                selectedPublication.publicationFile?.url
+              ) &&
+                !selectedPublication.codeAttachment?.url &&
+                (!selectedPublication.images ||
+                  selectedPublication.images.length === 0) && (
+                  <div className="text-center py-8">
+                    <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <BookOpen className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 text-lg">
+                      No attachments available for this publication
+                    </p>
+                  </div>
+                )}
+            </div>
+
+            {/* Publication Info Footer */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {selectedPublication.paperId && (
+                  <div>
+                    <span className="font-medium">Paper ID:</span>
+                    <p className="text-gray-600">
+                      {selectedPublication.paperId}
+                    </p>
+                  </div>
+                )}
+                {selectedPublication.platform && (
+                  <div>
+                    <span className="font-medium">Platform:</span>
+                    <p className="text-gray-600">
+                      {selectedPublication.platform}
+                    </p>
+                  </div>
+                )}
+                {selectedPublication.program && (
+                  <div>
+                    <span className="font-medium">Program:</span>
+                    <p className="text-gray-600">
+                      {selectedPublication.program}
+                    </p>
+                  </div>
+                )}
+                {selectedPublication.status && (
+                  <div>
+                    <span className="font-medium">Status:</span>
+                    <Badge
+                      variant={
+                        selectedPublication.status === "Published"
+                          ? "default"
+                          : selectedPublication.status === "Ongoing"
+                          ? "secondary"
+                          : selectedPublication.status === "Hold"
+                          ? "outline"
+                          : "destructive"
+                      }
+                      className="mt-1"
+                    >
+                      {selectedPublication.status}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

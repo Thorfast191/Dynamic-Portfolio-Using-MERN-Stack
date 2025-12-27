@@ -1,25 +1,70 @@
 import mongoose from "mongoose";
 
-const publicationSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, "Please Enter Your Full Name!"],
-  },
-
-  description: {
-    type: String,
-  },
-
-  publication: {
-    public_id: {
+const publicationSchema = new mongoose.Schema(
+  {
+    title: {
       type: String,
-      required: false,
+      required: [true, "Title is required"],
+      trim: true,
     },
-    url: {
+    description: {
       type: String,
-      required: false,
+      required: [true, "Description is required"],
     },
+    paperId: {
+      type: String,
+      default: "",
+    },
+    platform: {
+      type: String,
+      default: "",
+    },
+    program: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["Ongoing", "Published", "Hold", "Cancel"],
+      default: "Ongoing",
+    },
+    publicationFile: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+    },
+    codeAttachment: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+    },
+    images: [
+      {
+        public_id: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
+        name: {
+          type: String,
+        },
+      },
+    ],
   },
-});
+  { timestamps: true }
+);
 
 export const Publication = mongoose.model("Publication", publicationSchema);

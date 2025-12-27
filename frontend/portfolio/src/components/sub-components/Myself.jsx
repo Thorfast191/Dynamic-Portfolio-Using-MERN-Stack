@@ -13,15 +13,12 @@ import {
   Orbit,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
 
 const Myself = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getMyProfile = async () => {
@@ -39,10 +36,12 @@ const Myself = () => {
     getMyProfile();
   }, []);
 
-  // Handle link clicks to avoid nesting anchor tags
+  // Handle link clicks
   const handleLinkClick = (e, url) => {
     e.stopPropagation();
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   // Handle resume download
@@ -69,103 +68,6 @@ const Myself = () => {
   }
 
   return (
-<<<<<<< HEAD
-    <div className="w-full  flex flex-col md:flex-row gap-8 p-4 md:p-8 items-center justify-center">
-      {/* Left Section - Avatar */}
-      <div className="w-full md:w-1/3 flex items-center justify-center p-4">
-        <div className="relative w-full h-full rounded-lg border-4 border-white dark:border-gray-800 overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-700">
-          {user?.avatar?.url ? (
-            <img
-              src={user.avatar.url}
-              alt="User Avatar"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-8xl font-bold text-gray-600 dark:text-gray-300">
-              {user?.fullName?.charAt(0) || "U"}
-            </div>
-          )}
-          {/* Online Indicator */}
-          {user && (
-            <div className="absolute bottom-4 right-4 online-indicator">
-              <span className="bg-green-400 rounded-full w-7 h-7 border-4 border-white dark:border-gray-800 block shadow-md animate-pulse"></span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right Section - Content */}
-      <div className="w-full md:w-2/3 flex flex-col items-center justify-center p-4 space-y-6">
-        <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-gray-800 dark:text-white">
-            {user.fullName}
-          </h1>
-
-          <div className="mb-6 text-2xl md:text-3xl text-gray-600 dark:text-gray-400">
-            <Typewriter
-              words={["FULLSTACK DEVELOPER", "YOUTUBER", "FREELANCER"]}
-              loop={50}
-              cursor
-              cursorStyle="_"
-              typeSpeed={70}
-              deleteSpeed={50}
-              delaySpeed={1000}
-            />
-          </div>
-        </div>
-
-        {user.aboutMe && (
-          <p className="text-lg md:text-xl leading-relaxed max-w-2xl text-center text-gray-700 dark:text-gray-300 mb-8">
-            {user.aboutMe}
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-6 justify-center">
-          <SocialLink
-            url={user.instagramURL}
-            icon={<Instagram size={36} />}
-            color="text-pink-500 hover:text-pink-600"
-          />
-          <SocialLink
-            url={user.facebookURL}
-            icon={<Facebook size={36} />}
-            color="text-blue-600 hover:text-blue-700"
-          />
-          <SocialLink
-            url={user.linkedInURL}
-            icon={<Linkedin size={36} />}
-            color="text-blue-500 hover:text-blue-600"
-          />
-          <SocialLink
-            url={user.twitterURL}
-            icon={<Twitter size={36} />}
-            color="text-blue-400 hover:text-blue-500"
-          />
-          <SocialLink
-            url="https://www.youtube.com/@CodeWithZeeshu"
-            icon={<Youtube size={36} />}
-            color="text-red-500 hover:text-red-600"
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-6 justify-center">
-          <SocialButton
-            url={user.githubURL}
-            icon={<Github size={24} />}
-            text="GitHub"
-          />
-          <SocialButton
-            url={user.resume?.url}
-            icon={<ExternalLink size={24} />}
-            text="View Resume"
-            disabled={!user.resume?.url}
-          />
-        </div>
-      </div>
-=======
     <div className="relative w-full max-w-6xl mx-auto px-4 py-8 md:py-16">
       {/* Cosmic background effects */}
       <div className="absolute inset-0 pointer-events-none">
@@ -173,7 +75,7 @@ const Myself = () => {
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full bg-sky-300/10 animate-orbit"
+            className="absolute rounded-full bg-sky-300/10 animate-pulse"
             style={{
               width: `${Math.random() * 20 + 5}px`,
               height: `${Math.random() * 20 + 5}px`,
@@ -208,7 +110,7 @@ const Myself = () => {
           <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-transparent blur-xl opacity-50" />
 
           {/* Avatar Container */}
-          <div className="relative mb-8 avatar-container">
+          <div className="relative mb-8">
             <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto">
               {/* Orbital rings */}
               <div className="absolute inset-0">
@@ -252,7 +154,7 @@ const Myself = () => {
                 )}
 
                 {/* Online Indicator */}
-                <div className="absolute bottom-4 right-4 online-indicator z-100">
+                <div className="absolute bottom-4 right-4 z-10">
                   <span className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-8 h-8 border-4 border-gray-900 block shadow-lg animate-pulse"></span>
                   <div
                     className="absolute inset-0 rounded-full bg-green-400/30 animate-ping"
@@ -261,7 +163,7 @@ const Myself = () => {
                 </div>
               </div>
 
-              {/* Floating icon */}
+              {/* Floating icons */}
               <Rocket
                 className="absolute -top-4 -right-4 text-sky-400 animate-bounce"
                 size={32}
@@ -331,7 +233,7 @@ const Myself = () => {
 
         {/* Right Section - Social & Actions */}
         <div className="relative">
-          {/* Cosmic connection lines */}
+          {/* Cosmic connection line */}
           <div className="absolute left-0 top-1/2 w-8 h-[1px] bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
 
           <div className="glass-space rounded-2xl p-8 border border-sky-500/20 shadow-xl">
@@ -393,7 +295,7 @@ const Myself = () => {
                   {user.githubURL && (
                     <button
                       onClick={(e) => handleLinkClick(e, user.githubURL)}
-                      className="relative rounded-full px-8 py-6 gap-3 text-lg font-tech-heading tracking-wider bg-gradient-to-br from-gray-800 to-gray-900 border border-sky-500/30 hover:scale-105 hover:shadow-xl hover:shadow-sky-900/30 transition-all duration-300 flex items-center"
+                      className="group relative rounded-full px-6 py-4 gap-3 text-lg font-tech-heading tracking-wider bg-gradient-to-br from-gray-800 to-gray-900 border border-sky-500/30 hover:scale-105 hover:shadow-xl hover:shadow-sky-900/30 transition-all duration-300 flex items-center"
                     >
                       <Github size={20} className="text-white" />
                       <span className="text-white">GITHUB PROFILE</span>
@@ -406,7 +308,7 @@ const Myself = () => {
                   {user.resume?.url && (
                     <button
                       onClick={(e) => handleResumeClick(e, user.resume.url)}
-                      className="relative rounded-full px-8 py-6 gap-3 text-lg font-tech-heading tracking-wider bg-gradient-to-br from-sky-700 to-blue-800 border border-sky-500/30 hover:scale-105 hover:shadow-xl hover:shadow-sky-900/30 transition-all duration-300 flex items-center text-white"
+                      className="group relative rounded-full px-6 py-4 gap-3 text-lg font-tech-heading tracking-wider bg-gradient-to-br from-sky-700 to-blue-800 border border-sky-500/30 hover:scale-105 hover:shadow-xl hover:shadow-sky-900/30 transition-all duration-300 flex items-center text-white"
                     >
                       <ExternalLink size={20} className="text-white" />
                       <span className="text-white font-bold">VIEW RESUME</span>
@@ -455,7 +357,7 @@ const Myself = () => {
         </div>
       </div>
 
-      {/* Add custom animations */}
+      {/* Custom CSS */}
       <style jsx>{`
         @keyframes orbit {
           0% {
@@ -464,15 +366,6 @@ const Myself = () => {
           100% {
             transform: rotate(360deg) translateX(150px) rotate(-360deg);
           }
-        }
-
-        .animate-orbit {
-          animation: orbit linear infinite;
-        }
-
-        /* Avatar hover effect */
-        .avatar-container:hover .avatar-ring {
-          animation-duration: 5s;
         }
 
         /* Typewriter cursor blink */
@@ -495,35 +388,11 @@ const Myself = () => {
           }
         }
       `}</style>
->>>>>>> 4a73a3b (updated)
     </div>
   );
 };
 
-<<<<<<< HEAD
-const SocialLink = ({ url, icon, color }) =>
-  url && (
-    <Link
-      to={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`${color} transition-all duration-300 hover:-translate-y-1`}
-    >
-      {icon}
-    </Link>
-  );
-
-const SocialButton = ({ url, icon, text, disabled }) =>
-  url &&
-  !disabled && (
-    <Link to={url} target="_blank" rel="noopener noreferrer">
-      <Button className="rounded-full px-8 py-4 gap-3 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 text-lg transition-transform hover:scale-105">
-        {icon}
-        <span>{text}</span>
-      </Button>
-    </Link>
-=======
-// Fixed Social Link Component
+// Social Link Component
 const SocialLink = ({ url, icon, label, color }) => {
   const getIconColor = (color) => {
     switch (color) {
@@ -559,37 +428,36 @@ const SocialLink = ({ url, icon, label, color }) => {
     }
   };
 
+  if (!url) return null;
+
   return (
-    url && (
-      <div className="relative group">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            window.open(url, "_blank", "noopener,noreferrer");
-          }}
-          className="relative flex flex-col items-center justify-center p-4 rounded-lg bg-gray-900/50 border border-sky-500/20 group-hover:border-sky-400/50 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-sky-900/30 w-full"
-          title={label}
+    <div className="relative group">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          window.open(url, "_blank", "noopener,noreferrer");
+        }}
+        className="relative flex flex-col items-center justify-center p-4 rounded-lg bg-gray-900/50 border border-sky-500/20 group-hover:border-sky-400/50 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-sky-900/30 w-full"
+        title={label}
+      >
+        {/* Icon */}
+        <div
+          className={`text-2xl mb-2 ${getIconColor(color)} ${getHoverColor(
+            color
+          )} transition-colors duration-300`}
         >
-          {/* Icon */}
-          <div
-            className={`text-2xl mb-2 ${getIconColor(color)} ${getHoverColor(
-              color
-            )} transition-colors duration-300`}
-          >
-            {React.cloneElement(icon, { size: 28 })}
-          </div>
+          {React.cloneElement(icon, { size: 28 })}
+        </div>
 
-          {/* Label */}
-          <span className="text-xs font-tech-mono text-gray-400 group-hover:text-sky-300 transition-colors duration-300">
-            {label}
-          </span>
+        {/* Label */}
+        <span className="text-xs font-tech-mono text-gray-400 group-hover:text-sky-300 transition-colors duration-300">
+          {label}
+        </span>
 
-          {/* Connection dot */}
-          <div className="absolute -bottom-1 w-2 h-2 rounded-full bg-sky-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </button>
-      </div>
-    )
->>>>>>> 4a73a3b (updated)
+        {/* Connection dot */}
+        <div className="absolute -bottom-1 w-2 h-2 rounded-full bg-sky-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </button>
+    </div>
   );
 };
 

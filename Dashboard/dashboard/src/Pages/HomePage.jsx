@@ -19,12 +19,12 @@ import {
   History,
   PanelLeft,
   BookOpen,
+  Files,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { BookOpen } from "lucide-react";
 import Dashboard from "./sub-components/Dashboard";
 import AddProject from "./sub-components/AddProject";
 import AddSkill from "./sub-components/AddSkill";
@@ -32,11 +32,8 @@ import AddSoftwareApplications from "./sub-components/AddSoftwareApplications";
 import AddTimeline from "./sub-components/AddTimeline";
 import Messages from "./sub-components/Messages";
 import Account from "./sub-components/Account";
-<<<<<<< HEAD
 import AddPublication from "./sub-components/AddPublication";
-=======
-import AddResearch from "./sub-components/AddResearch";
->>>>>>> 4a73a3b (updated)
+import ManagePublications from "./ManagePublications";
 
 const HomePage = () => {
   const [active, setActive] = useState("");
@@ -72,6 +69,8 @@ const HomePage = () => {
               <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
               <span className="sr-only">Acme Inc</span>
             </Link>
+
+            {/* Dashboard */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -91,6 +90,7 @@ const HomePage = () => {
               </Tooltip>
             </TooltipProvider>
 
+            {/* Add Project */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -110,6 +110,7 @@ const HomePage = () => {
               </Tooltip>
             </TooltipProvider>
 
+            {/* Add Publication */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -129,6 +130,29 @@ const HomePage = () => {
               </Tooltip>
             </TooltipProvider>
 
+            {/* Manage Publications */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                      active === "Manage Publications"
+                        ? "text-accent-foreground bg-accent"
+                        : "text-muted-foreground"
+                    }  transition-colors hover:text-foreground md:h-8 md:w-8`}
+                    onClick={() => setActive("Manage Publications")}
+                  >
+                    <Files className="h-5 w-5" />
+                    <span className="sr-only">Manage Publications</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Manage Publications
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Add Skill */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -148,6 +172,7 @@ const HomePage = () => {
               </Tooltip>
             </TooltipProvider>
 
+            {/* Add Uses */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -166,6 +191,8 @@ const HomePage = () => {
                 <TooltipContent side="right">Add Uses</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            {/* Add Timeline */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -184,6 +211,8 @@ const HomePage = () => {
                 <TooltipContent side="right">Add Timeline</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            {/* Messages */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -202,6 +231,8 @@ const HomePage = () => {
                 <TooltipContent side="right">Messages</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            {/* Account */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -220,25 +251,9 @@ const HomePage = () => {
                 <TooltipContent side="right">Account</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                      active === "Add Research"
-                        ? "text-accent-foreground bg-accent"
-                        : "text-muted-foreground"
-                    }  transition-colors hover:text-foreground md:h-8 md:w-8`}
-                    onClick={() => setActive("Add Research")}
-                  >
-                    <BookOpen className="h-5 w-5" />
-                    <span className="sr-only">Add Research</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Add Research</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </nav>
+
+          {/* Logout */}
           <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
             <TooltipProvider>
               <Tooltip>
@@ -256,6 +271,8 @@ const HomePage = () => {
             </TooltipProvider>
           </nav>
         </aside>
+
+        {/* Mobile Header */}
         <header
           className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b 
         bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent 
@@ -276,6 +293,7 @@ const HomePage = () => {
                   <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
                   <span className="sr-only">Acme Inc</span>
                 </Link>
+
                 <Link
                   href="#"
                   className={`flex items-center gap-4 px-2.5 ${
@@ -288,6 +306,7 @@ const HomePage = () => {
                   <Home className="h-5 w-5" />
                   Dashboard
                 </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
                     active === "Add Project"
@@ -299,6 +318,7 @@ const HomePage = () => {
                   <FolderGit className="h-5 w-5" />
                   Add Project
                 </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
                     active === "Add Publication"
@@ -310,6 +330,19 @@ const HomePage = () => {
                   <BookOpen className="h-5 w-5" />
                   Add Publication
                 </Link>
+
+                <Link
+                  className={`flex items-center gap-4 px-2.5 ${
+                    active === "Manage Publications"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground "
+                  }`}
+                  onClick={() => setActive("Manage Publications")}
+                >
+                  <Files className="h-5 w-5" />
+                  Manage Publications
+                </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
                     active === "Add Skill"
@@ -321,17 +354,7 @@ const HomePage = () => {
                   <PencilRuler className="h-5 w-5" />
                   Add Skill
                 </Link>
-                <Link
-                  className={`flex items-center gap-4 px-2.5 ${
-                    active === "Add Research"
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground "
-                  }`}
-                  onClick={() => setActive("Add Research")}
-                >
-                  <BookOpen className="h-5 w-5" />
-                  Add Research
-                </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
                     active === "Add Uses"
@@ -343,9 +366,10 @@ const HomePage = () => {
                   <LayoutGrid className="h-5 w-5" />
                   Add Uses
                 </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
-                    active === "Profile"
+                    active === "Account"
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground "
                   }`}
@@ -354,17 +378,19 @@ const HomePage = () => {
                   <User className="h-5 w-5" />
                   Account
                 </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
-                    active === "Timeline"
+                    active === "Add Timeline"
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground "
                   }`}
-                  onClick={() => setActive("Timeline")}
+                  onClick={() => setActive("Add Timeline")}
                 >
                   <History className="h-5 w-5" />
-                  Timeline
+                  Add Timeline
                 </Link>
+
                 <Link
                   className={`flex items-center gap-4 px-2.5 ${
                     active === "Messages"
@@ -376,6 +402,7 @@ const HomePage = () => {
                   <MessageSquareMore className="h-5 w-5" />
                   Messages
                 </Link>
+
                 <Link
                   className={
                     "flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
@@ -389,6 +416,8 @@ const HomePage = () => {
             </SheetContent>
           </Sheet>
         </header>
+
+        {/* User Welcome Section */}
         <div className="flex items-center gap-4 md:grow-0 sm:ml-16 sm:mt-5">
           <img
             src={user && user.avatar && user.avatar.url}
@@ -399,38 +428,30 @@ const HomePage = () => {
             Welcome back, {user.fullName}
           </h1>
         </div>
+
+        {/* Content Area */}
         {(() => {
           switch (active) {
             case "Dashboard":
               return <Dashboard />;
-              break;
             case "Add Project":
               return <AddProject />;
-              break;
             case "Add Publication":
               return <AddPublication />;
-              break;
+            case "Manage Publications":
+              return <ManagePublications />;
             case "Add Skill":
               return <AddSkill />;
-              break;
             case "Add Uses":
               return <AddSoftwareApplications />;
-              break;
             case "Add Timeline":
               return <AddTimeline />;
-              break;
             case "Messages":
               return <Messages />;
-              break;
             case "Account":
               return <Account />;
-              break;
             default:
               return <Dashboard />;
-              break;
-            case "Add Research":
-              return <AddResearch />;
-              break;
           }
         })()}
       </div>

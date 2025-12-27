@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
@@ -10,6 +10,7 @@ import { getAllSkills } from "./store/slices/skillSlice";
 import { getAllSoftwareApplications } from "./store/slices/softwareApplicationSlice";
 import { getAllTimeline } from "./store/slices/timelineSlice";
 import { getAllProjects } from "./store/slices/projectSlice";
+import { getAllPublications } from "./store/slices/publicationSlice";
 import HomePage from "./Pages/HomePage.jsx";
 import Login from "./Pages/Login.jsx";
 import ForgotPassword from "./Pages/ForgotPassword.jsx";
@@ -21,7 +22,9 @@ import ViewProject from "./Pages/ViewProject.jsx";
 import UpdateProject from "./Pages/UpdateProject.jsx";
 import AddProject from "./Pages/sub-components/AddProject";
 import ViewPublication from "./Pages/ViewPublication";
-// import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import AddPublication from "./Pages/sub-components/AddPublication";
+import ManagePublications from "./Pages/ManagePublications";
+import UpdatePublication from "./Pages/UpdatePublication";
 
 function App() {
   const dispatch = useDispatch();
@@ -33,15 +36,8 @@ function App() {
     dispatch(getAllTimeline());
     dispatch(getAllMessages());
     dispatch(getAllProjects());
-  }, []);
-
-  // Test toast on app load
-  useEffect(() => {
-    toast.success("App loaded successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }, []);
+    dispatch(getAllPublications());
+  }, [dispatch]);
 
   return (
     <Router>
@@ -51,13 +47,27 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/password/forgot" element={<ForgotPassword />} />
           <Route path="/password/reset/:token" element={<ResetPassword />} />
+
+          {/* Skills Routes */}
           <Route path="/manage/skills" element={<ManageSkills />} />
+
+          {/* Timeline Routes */}
           <Route path="/manage/timeline" element={<ManageTimeline />} />
+
+          {/* Project Routes */}
           <Route path="/manage/projects" element={<ManageProjects />} />
           <Route path="/add-project" element={<AddProject />} />
           <Route path="/project/:id" element={<ViewProject />} />
           <Route path="/update/project/:id" element={<UpdateProject />} />
+
+          {/* Publication Routes */}
           <Route path="/publications/:id" element={<ViewPublication />} />
+          <Route path="/add/publication" element={<AddPublication />} />
+          <Route path="/manage/publications" element={<ManagePublications />} />
+          <Route
+            path="/update/publication/:id"
+            element={<UpdatePublication />}
+          />
         </Routes>
         <ToastContainer
           position="top-right"
