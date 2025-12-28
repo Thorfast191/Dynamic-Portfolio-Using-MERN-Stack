@@ -28,7 +28,8 @@ const publicationSchema = new mongoose.Schema(
       enum: ["Ongoing", "Published", "Hold", "Cancel"],
       default: "Ongoing",
     },
-    publicationFile: {
+    paperAttachment: {
+      // Changed from publicationFile to paperAttachment
       public_id: {
         type: String,
       },

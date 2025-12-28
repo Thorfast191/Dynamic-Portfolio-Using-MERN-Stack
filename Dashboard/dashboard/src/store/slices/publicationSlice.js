@@ -37,20 +37,20 @@ const publicationSlice = createSlice({
 
       // Transform each publication to ensure all fields exist
       const safePublications = publicationsArray.map((pub) => {
-        // Create a safe copy with defaults
+        // Create a safe copy with defaults - FIXED VERSION
         const safePub = {
-          _id: pub._id || pub.id || "",
-          title: pub.title || "Untitled Publication",
-          description: pub.description || "No description provided",
-          paperId: pub.paperId || "N/A",
-          platform: pub.platform || "Other",
-          program: pub.program || "",
-          status: pub.status || "Ongoing",
-          createdAt: pub.createdAt || new Date().toISOString(),
-          updatedAt: pub.updatedAt || pub.createdAt || new Date().toISOString(),
-          paperAttachment: pub.paperAttachment || null,
-          codeAttachment: pub.codeAttachment || null,
-          images: pub.images || [],
+          _id: pub._id ?? pub.id ?? "",
+          title: pub.title ?? "",
+          description: pub.description ?? "",
+          paperId: pub.paperId ?? "",
+          platform: pub.platform ?? "",
+          program: pub.program ?? "",
+          status: pub.status ?? "Ongoing",
+          createdAt: pub.createdAt ?? new Date().toISOString(),
+          updatedAt: pub.updatedAt ?? pub.createdAt ?? new Date().toISOString(),
+          paperAttachment: pub.paperAttachment ?? null,
+          codeAttachment: pub.codeAttachment ?? null,
+          images: pub.images ?? [],
         };
 
         console.log("Transformed publication:", safePub);
@@ -207,66 +207,30 @@ export const getSinglePublication = (id) => async (dispatch) => {
   }
 };
 
-export const addNewPublication = (publicationData) => async (dispatch) => {
+export const addNewPublication = (formData) => async (dispatch) => {
   dispatch(publicationSlice.actions.addNewPublicationRequest());
+
   try {
-    const formData = new FormData();
-
-    // Add text fields
-    formData.append("title", publicationData.title);
-    formData.append("description", publicationData.description);
-    formData.append("paperId", publicationData.paperId || "");
-    formData.append("platform", publicationData.platform || "");
-    formData.append("program", publicationData.program || "");
-    formData.append("status", publicationData.status || "Ongoing");
-
-    // Add paper attachment
-    if (publicationData.paperAttachment) {
-      formData.append("publication", publicationData.paperAttachment);
-    }
-
-    // Add code attachment
-    if (publicationData.codeAttachment) {
-      formData.append("codeAttachment", publicationData.codeAttachment);
-    }
-
-    // Add images
-    if (publicationData.images && publicationData.images.length > 0) {
-      publicationData.images.forEach((image) => {
-        formData.append("images", image);
-      });
-    }
-
-    console.log("Sending publication data:", {
-      title: publicationData.title,
-      description: publicationData.description,
-      hasPaperAttachment: !!publicationData.paperAttachment,
-      hasCodeAttachment: !!publicationData.codeAttachment,
-      imagesCount: publicationData.images?.length || 0,
-    });
-
     const { data } = await axios.post(
       "http://localhost:4000/api/publications/add",
-      formData,
+      formData, // SEND AS-IS
       {
+        withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        withCredentials: true,
       }
     );
 
-    console.log("Publication added successfully:", data);
-
     dispatch(publicationSlice.actions.addNewPublicationSuccess(data.message));
-
-    dispatch(getAllPublications()); // Refresh the list
-    return data;
+    dispatch(getAllPublications());
   } catch (error) {
-    const errorMessage = error.response?.data?.message || error.message;
-    console.error("Error adding publication:", errorMessage);
-    dispatch(publicationSlice.actions.addNewPublicationFailed(errorMessage));
-    throw new Error(errorMessage);
+    dispatch(
+      publicationSlice.actions.addNewPublicationFailed(
+        error.response?.data?.message || "Failed to add publication"
+      )
+    );
+    throw error;
   }
 };
 
