@@ -1,116 +1,222 @@
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FileText, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // ADD THIS
+import { FileText, Download, ExternalLink, Loader, Code2 } from "lucide-react";
 
 const Publications = () => {
   const [viewAll, setViewAll] = useState(false);
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // ADD THIS
 
   useEffect(() => {
-    const getMyPublications = async () => {
+    const fetchPublications = async () => {
       try {
-        setLoading(true);
         const { data } = await axios.get(
           "http://localhost:4000/api/publications/getall",
           { withCredentials: true }
         );
-        setPublications(data.publications);
+        setPublications(data.publications || []);
       } catch (error) {
-        console.error("Error fetching publications:", error);
+        console.error("Failed to fetch publications:", error);
       } finally {
         setLoading(false);
       }
     };
-    getMyPublications();
+    fetchPublications();
   }, []);
 
+  // ADD THIS FUNCTION
+  const handlePublicationClick = (id) => {
+    navigate(`/publication/${id}`);
+  };
+
+  // ADD THIS FUNCTION
+  const handleLinkClick = (e, url) => {
+    e.stopPropagation();
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  /* -------------------- Loading -------------------- */
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <p>Loading publications...</p>
+      <div className="flex justify-center items-center py-32">
+        <Loader className="h-10 w-10 animate-spin text-sky-400" />
+      </div>
+    );
+  }
+
+  /* -------------------- Empty -------------------- */
+  if (publications.length === 0) {
+    return (
+      <div className="text-center py-32">
+        <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-xl font-medium text-white">
+          No Publications Found
+        </h3>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      {/* Header Section */}
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Research Publications
+    <div className="relative w-full max-w-7xl mx-auto px-4 py-16">
+      {/* ---------- Title ---------- */}
+      <div className="relative mb-14">
+        <h1 className="flex justify-center text-[2.5rem] md:text-[3.5rem] font-tech-heading tracking-[0.25em] text-tubeLight-effect font-extrabold">
+          PUBLICATIONS
         </h1>
-        <div className="w-24 h-1 bg-blue-600 dark:bg-blue-500 mx-auto rounded-full" />
+
+        <div className="absolute -inset-6 rounded-2xl bg-gradient-to-r from-transparent via-sky-500/10 to-transparent animate-pulse" />
       </div>
 
-      {publications.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-            No publications found
-          </h3>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            You haven't added any publications yet.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Publications Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(viewAll ? publications : publications.slice(0, 9)).map((pub) => (
-              <div
-                key={pub._id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl 
-                transition-all duration-300 p-6 flex flex-col h-full"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2">
-                    {pub.title}
-                  </h2>
-                </div>
+      {/* ---------- Grid ---------- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {(viewAll ? publications : publications.slice(0, 9)).map((pub) => (
+          <div
+            key={pub._id}
+            className="relative group cursor-pointer" // ADD cursor-pointer
+            onClick={() => handlePublicationClick(pub._id)} // ADD click handler
+          >
+            {/* Glow */}
+            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-r from-sky-500/0 via-sky-500/15 to-sky-500/0 opacity-0 group-hover:opacity-100 transition-all duration-700 blur-sm" />
 
-                <div className="prose dark:prose-invert max-w-none flex-grow mb-4">
-                  <p className="text-gray-700 dark:text-gray-300 line-clamp-3">
-                    {pub.description}
-                  </p>
-                </div>
+            <Card className="glass-space border border-sky-500/20 shadow-lg overflow-hidden transition-all duration-500 group-hover:scale-[1.03] group-hover:border-sky-400/40 h-full relative">
+              {/* Glowing corner effect (similar to Portfolio) */}
+              <div className="absolute top-0 right-0 w-6 h-6">
+                <div className="absolute top-0 right-0 w-3 h-3 rounded-full bg-sky-400/30 blur-sm" />
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-sky-400/20 blur-sm" />
+              </div>
 
-                <div className="flex flex-col gap-3 mt-auto">
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => window.open(pub.publication.url, "_blank")}
-                  >
-                    <span>View Publication</span>
-                  </Button>
-
-                  <Button
-                    className="w-full gap-2"
-                    onClick={() => window.open(pub.publication.url, "_blank")}
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download PDF</span>
-                  </Button>
+              {/* View overlay (similar to Portfolio) */}
+              <div className="absolute inset-0 bg-gray-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center z-20">
+                <div className="px-4 py-2 bg-gradient-to-r from-sky-600 to-blue-600 rounded-lg text-white font-tech-subheading animate-pulse">
+                  VIEW PUBLICATION →
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Show More Button */}
-          {publications.length > 9 && (
-            <div className="w-full text-center mt-12">
-              <Button
-                className="px-8 py-4 text-lg rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 
-                dark:hover:bg-blue-600 transition-transform hover:scale-105"
-                onClick={() => setViewAll(!viewAll)}
-              >
-                {viewAll ? "Show Less" : `Show More (${publications.length})`}
-              </Button>
-            </div>
-          )}
-        </>
+              {/* Header */}
+              <div className="p-5 border-b border-sky-500/20 relative z-10">
+                <div className="flex items-start gap-3">
+                  <FileText className="w-6 h-6 text-sky-400 mt-1 flex-shrink-0" />
+                  <h3 className="text-lg font-bold text-white leading-snug line-clamp-2 group-hover:text-sky-300 transition-colors duration-300">
+                    {pub.title}
+                  </h3>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {pub.platform && (
+                    <Badge className="bg-sky-900/40 text-sky-300 border border-sky-500/30">
+                      {pub.platform}
+                    </Badge>
+                  )}
+                  {pub.status && (
+                    <Badge
+                      className={`px-3 py-1 rounded-full text-xs font-tech-mono ${
+                        pub.status === "Published"
+                          ? "bg-green-900/30 text-green-300 border border-green-500/30"
+                          : pub.status === "Ongoing"
+                          ? "bg-blue-900/30 text-blue-300 border border-blue-500/30"
+                          : "bg-yellow-900/30 text-yellow-300 border border-yellow-500/30"
+                      }`}
+                    >
+                      {pub.status}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 flex flex-col h-full relative z-10">
+                <p className="text-gray-300 text-sm line-clamp-3 mb-6">
+                  {pub.description}
+                </p>
+
+                {/* Publication metadata */}
+                <div className="mt-auto space-y-3">
+                  {pub.paperId && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-gray-400">ID:</span>
+                      <span className="text-sky-300 font-tech-mono truncate">
+                        {pub.paperId}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    {/* View Paper */}
+                    {pub.paperAttachment?.url && (
+                      <Button
+                        variant="outline"
+                        className="flex-1 gap-2 bg-gray-800/50 border-sky-500/30 text-sky-300 hover:bg-sky-900/50 hover:text-white font-tech-subheading"
+                        onClick={(e) =>
+                          handleLinkClick(e, pub.paperAttachment.url)
+                        }
+                      >
+                        <ExternalLink size={16} />
+                        View
+                      </Button>
+                    )}
+
+                    {/* Download */}
+                    {pub.paperAttachment?.url && (
+                      <Button
+                        className="flex-1 gap-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 font-tech-subheading"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Create a temporary link to trigger download
+                          const link = document.createElement("a");
+                          link.href = pub.paperAttachment.url;
+                          link.download =
+                            pub.paperAttachment.name || "publication.pdf";
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                      >
+                        <Download size={16} />
+                        Download
+                      </Button>
+                    )}
+
+                    {/* Code */}
+                    {pub.codeAttachment?.url && (
+                      <Button
+                        variant="ghost"
+                        className="flex-1 gap-2 text-sky-300 hover:text-sky-200 font-tech-subheading"
+                        onClick={(e) =>
+                          handleLinkClick(e, pub.codeAttachment.url)
+                        }
+                      >
+                        <Code2 size={16} />
+                        Code
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Animated border */}
+              <div className="absolute inset-0 rounded-lg border border-transparent group-hover:border-sky-500/30 transition-all duration-500" />
+            </Card>
+          </div>
+        ))}
+      </div>
+
+      {/* ---------- Show More ---------- */}
+      {publications.length > 9 && (
+        <div className="text-center mt-14">
+          <Button
+            className="px-10 py-6 text-lg font-tech-heading bg-sky-600 hover:bg-sky-700 tracking-widest"
+            onClick={() => setViewAll(!viewAll)}
+          >
+            {viewAll ? "SHOW LESS" : "VIEW ALL PUBLICATIONS"}
+          </Button>
+        </div>
       )}
     </div>
   );
